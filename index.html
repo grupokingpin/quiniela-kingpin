@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiniela Qatar 2026 - Grupo Kingpin</title>
+    <title>Quiniela Mundial 2026 - Grupo Kingpin</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap');
@@ -22,7 +22,6 @@
             <h1 class="text-xl md:text-2xl font-extrabold uppercase tracking-tight mt-1 text-white">
                 Quiniela <span class="text-[#f97316]">Mundial 2026</span>
             </h1>
-            <!-- Barra de Progreso Fija -->
             <div class="w-full max-w-md bg-gray-700 h-2.5 rounded-full mt-2 overflow-hidden">
                 <div id="progressBar" class="bg-gradient-to-r from-orange-500 to-amber-500 h-full w-0 transition-all duration-300"></div>
             </div>
@@ -59,9 +58,7 @@
         <!-- SECCIÓN 2: LOS 72 PARTIDOS -->
         <section class="space-y-4">
             <h2 class="text-lg font-bold text-orange-500 flex items-center gap-2 px-2">⚽ 2. Predicciones Fase de Grupos (72 Partidos)</h2>
-            <div id="partidosContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Los partidos se inyectan dinámicamente aquí -->
-            </div>
+            <div id="partidosContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </section>
 
         <!-- SECCIÓN 3: PREMIOS ESPECIALES -->
@@ -101,12 +98,10 @@
         <p>Costo por quiniela: $200.00 • Registro límite: Lunes 08 de Junio de 2026</p>
     </footer>
 
-    <!-- LOGICA DE CONTROL DE LA APLICACIÓN -->
     <script>
-        // URL DE TU WEB APP DE GOOGLE SCRIPTS INYECTADA
+        // URL ACTUALIZADA DE TU WEB APP DE GOOGLE SCRIPTS
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyk6cOdNkrqfWCkxp36dfquijWtXlFhMl_6lrIF4qnJiUXQi4ODGegPMho84fRgteDi/exec";
 
-        // LISTA OFICIAL DE PARTIDOS DEL GRUPO KINGPIN
         const partidosData = [
             { id: 1, local: "MÉXICO", visitante: "SUDÁFRICA" }, { id: 2, local: "COREA", visitante: "CHEQUIA" }, { id: 3, local: "CANADÁ", visitante: "BOSNIA" }, { id: 4, local: "ESTADOS UNIDOS", visitante: "PARAGUAY" },
             { id: 5, local: "CATAR", visitante: "SUIZA" }, { id: 6, local: "BRASIL", visitante: "MARRUECOS" }, { id: 7, local: "HAITI", visitante: "ESCOCIA" }, { id: 8, local: "AUSTRALIA", visitante: "TURQUÍA" },
@@ -131,32 +126,45 @@
         let baseColaboradores = [];
         let predicciones = {};
 
-        // INICIALIZACIÓN DE LA APP
         window.onload = function() {
             renderPartidos();
             llenarSelectsEquipos();
             fetchColaboradores();
             
-            // Listener para cambios en los selectores especiales
             document.querySelectorAll('.especial-select').forEach(select => {
                 select.addEventListener('change', actualizarProgreso);
             });
         };
 
-        // TRAER COLABORADORES ACTIVOS DE SHEETS
+        // LEER BASE DE DATOS CON ALERTAS DE DIAGNÓSTICO
         function fetchColaboradores() {
             fetch(WEB_APP_URL)
-                .then(res => res.json())
-                .then(data => {
-                    baseColaboradores = data;
+                .then(res => {
+                    if (!res.ok) throw new Error("Respuesta de red incorrecta");
+                    return res.json();
                 })
-                .catch(err => console.error("Error cargando personal:", err));
+                .then(data => {
+                    if (Array.isArray(data)) {
+                        baseColaboradores = data;
+                        if (data.length === 0) {
+                            alert("⚠️ Conexión exitosa, pero la lista está vacía. Revisa que en la hoja 'PAGOS' los estatus estén vacíos o digan 'Pendiente'.");
+                        }
+                    } else {
+                        alert("⚠️ Error: El servidor de Google no devolvió un formato de lista válido.");
+                    }
+                })
+                .catch(err => {
+                    alert("⚠️ Error de conexión con Google Sheets. Asegúrate de haber publicado la Web App de Google con acceso para 'Cualquiera' (Anyone).");
+                    console.error(err);
+                });
         }
 
-        // CARGAR NOMBRES BASADO EN LA SUCURSAL SELECCIONADA
+        // CONTROL INTELIGENTE DE FILTRADO DE NOMBRES
         function cargarNombres() {
-            const suc = document.getElementById("sucursalSelect").value;
+            const elSelectSucursal = document.getElementById("sucursalSelect");
+            const suc = elSelectSucursal.value.trim().toLowerCase();
             const nomSelect = document.getElementById("nombreSelect");
+            
             nomSelect.innerHTML = '<option value="">-- Selecciona tu Nombre --</option>';
             
             if(!suc) {
@@ -164,7 +172,21 @@
                 return;
             }
             
-            const filtrados = baseColaboradores.filter(c => c.sucursal === suc);
+            // Filtro avanzado tolerante a espacios y mayúsculas/minúsculas
+            const filtrados = baseColaboradores.filter(c => {
+                const sBase = c.sucursal ? c.sucursal.toString().trim().toLowerCase() : "";
+                return sBase === suc;
+            });
+            
+            if (filtrados.length === 0) {
+                let opt = document.createElement("option");
+                opt.value = "";
+                opt.textContent = "⚠️ No hay nombres activos para esta sucursal";
+                nomSelect.appendChild(opt);
+                nomSelect.disabled = false;
+                return;
+            }
+            
             filtrados.sort((a,b) => a.nombre.localeCompare(b.nombre));
             
             filtrados.forEach(c => {
@@ -176,7 +198,6 @@
             nomSelect.disabled = false;
         }
 
-        // RENDERIZAR CARTAS DE PARTIDOS
         function renderPartidos() {
             const container = document.getElementById("partidosContainer");
             partidosData.forEach(p => {
@@ -201,20 +222,14 @@
             });
         }
 
-        // GUARDAR VOTO INDIVIDUAL
         function votar(partidoId, opcion, elemento) {
             predicciones["P" + partidoId] = opcion;
-            
-            // Resetear clases de botones del mismo partido
             const parent = elemento.parentElement;
             parent.querySelectorAll(".btn-vote").forEach(btn => btn.classList.remove("active-btn"));
-            
-            // Activar botón seleccionado
             elemento.classList.add("active-btn");
             actualizarProgreso();
         }
 
-        // POBLAR SELECTS ESPECIALES CON EQUIPOS PARTICIPANTES
         function llenarSelectsEquipos() {
             let equipos = new Set();
             partidosData.forEach(p => { equipos.add(p.local); equipos.add(p.visitante); });
@@ -232,24 +247,18 @@
             });
         }
 
-        // CONTROL DE BARRA DE PROGRESO
         function actualizarProgreso() {
             let partidosRespondidos = Object.keys(predicciones).length;
             let especialesRespondidos = 0;
-            
             document.querySelectorAll(".especial-select").forEach(s => {
                 if(s.value !== "") especialesRespondidos++;
             });
-
             let totalRespondidos = partidosRespondidos + especialesRespondidos;
             let porcentaje = (totalRespondidos / 76) * 100;
-
-            document.getElementById("progressBar").style.w = porcentaje + "%";
             document.getElementById("progressBar").style.width = `${porcentaje}%`;
             document.getElementById("progressText").textContent = `Progreso: ${totalRespondidos} de 76 predicciones realizadas`;
         }
 
-        // ENVIAR QUINIELA COMPLETA A GOOGLE SHEETS
         function enviarQuiniela() {
             const nombre = document.getElementById("nombreSelect").value;
             const sucursal = document.getElementById("sucursalSelect").value;
@@ -262,12 +271,10 @@
                 alert("❌ Por favor, selecciona tu Sucursal y tu Nombre.");
                 return;
             }
-
             if (Object.keys(predicciones).length < 72) {
                 alert("❌ Te faltan partidos por pronosticar. Debes completar los 72 juegos.");
                 return;
             }
-
             if (!campeon || !subcampeon || !tercerLugar || !ultimoLugar) {
                 alert("❌ Por favor completa las 4 posiciones especiales del torneo.");
                 return;
@@ -289,7 +296,7 @@
 
             fetch(WEB_APP_URL, {
                 method: "POST",
-                mode: "no-cors", // Requerido para envío a Apps Script sin problemas de origen cruzado
+                mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             })
