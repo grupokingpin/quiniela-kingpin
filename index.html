@@ -4,103 +4,182 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiniela Mundial 2026 - Grupo Kingpin</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap');
         body { font-family: 'Poppins', sans-serif; background-color: #0f172a; }
         .active-btn { background-color: #ea580c !important; color: white !important; border-color: #ea580c !important; font-weight: bold; }
+        .tab-active { border-bottom-color: #f97316 !important; color: #f97316 !important; }
     </style>
 </head>
 <body class="text-white min-h-screen flex flex-col justify-between">
 
     <!-- HEADER CON LOGO -->
-    <header class="border-b border-gray-800 bg-[#1e293b] p-6 text-center shadow-xl sticky top-0 z-50">
-        <div class="flex flex-col items-center justify-center gap-2">
-            <div class="bg-[#0f172a] px-6 py-3 rounded-xl border border-orange-500/30 shadow-inner">
-                <span class="text-[#f97316] font-black text-2xl tracking-widest block">GRUPO KINGPIN</span>
+    <header class="border-b border-gray-800 bg-[#1e293b] p-4 text-center shadow-xl sticky top-0 z-50">
+        <div class="flex flex-col items-center justify-center gap-1">
+            <div class="bg-[#0f172a] px-5 py-2 rounded-xl border border-orange-500/30 shadow-inner">
+                <span class="text-[#f97316] font-black text-xl tracking-widest block">GRUPO KINGPIN</span>
             </div>
-            <h1 class="text-xl md:text-2xl font-extrabold uppercase tracking-tight mt-1 text-white">
+            <h1 class="text-lg md:text-xl font-extrabold uppercase tracking-tight text-white mt-1">
                 Quiniela <span class="text-[#f97316]">Mundial 2026</span>
             </h1>
-            <div class="w-full max-w-md bg-gray-700 h-2.5 rounded-full mt-2 overflow-hidden">
-                <div id="progressBar" class="bg-gradient-to-r from-orange-500 to-amber-500 h-full w-0 transition-all duration-300"></div>
-            </div>
-            <p id="progressText" class="text-xs text-gray-400 font-medium mt-1">Progreso: 0 de 76 predicciones realizadas</p>
         </div>
+
+        <!-- MENÚ DE NAVEGACIÓN PREMIUM -->
+        <nav class="flex justify-center gap-2 md:gap-6 mt-4 border-t border-gray-700/50 pt-3 text-xs md:text-sm font-bold uppercase tracking-wider">
+            <button onclick="cambiarTab('tab-posiciones')" id="btn-posiciones" class="tab-link px-3 py-1.5 border-b-2 border-transparent hover:text-orange-500 transition-all cursor-pointer tab-active">📊 Posiciones</button>
+            <button onclick="cambiarTab('tab-quiniela')" id="btn-quiniela" class="tab-link px-3 py-1.5 border-b-2 border-transparent hover:text-orange-500 transition-all cursor-pointer">⚽ Jugar Quiniela</button>
+            <button onclick="cambiarTab('tab-reglamento')" id="btn-reglamento" class="tab-link px-3 py-1.5 border-b-2 border-transparent hover:text-orange-500 transition-all cursor-pointer">📜 Reglamento</button>
+        </nav>
     </header>
 
     <!-- CONTAINER PRINCIPAL -->
-    <main class="max-w-4xl w-full mx-auto p-4 md:p-6 space-y-8 flex-grow">
+    <main class="max-w-4xl w-full mx-auto p-4 md:p-6 flex-grow">
         
-        <!-- SECCIÓN 1: DATOS DEL EMPLEADO -->
-        <section class="bg-[#1e293b] border border-gray-800 rounded-2xl p-6 shadow-xl space-y-4">
-            <h2 class="text-lg font-bold text-orange-500 flex items-center gap-2">👤 1. Datos del Colaborador</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Sucursal</label>
-                    <select id="sucursalSelect" onchange="cargarNombres()" class="w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500">
-                        <option value="">-- Selecciona tu Sucursal --</option>
-                        <option value="Bolerama">Bolerama</option>
-                        <option value="Kingpin Miyana">Kingpin Miyana</option>
-                        <option value="Kingpin Hub">Kingpin Hub</option>
-                        <option value="Corporativo">Corporativo</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Tu Nombre</label>
-                    <select id="nombreSelect" disabled class="w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500 disabled:opacity-40">
-                        <option value="">-- Selecciona primero una sucursal --</option>
-                    </select>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECCIÓN 2: LOS 72 PARTIDOS -->
-        <section class="space-y-4">
-            <h2 class="text-lg font-bold text-orange-500 flex items-center gap-2 px-2">⚽ 2. Predicciones Fase de Grupos (72 Partidos)</h2>
-            <div id="partidosContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-        </section>
-
-        <!-- SECCIÓN 3: PREMIOS ESPECIALES -->
-        <section class="bg-[#1e293b] border border-gray-800 rounded-2xl p-6 shadow-xl space-y-4">
-            <h2 class="text-lg font-bold text-orange-500 flex items-center gap-2">🏆 3. Posiciones Finales Extra (5 pts c/u)</h2>
+        <!-- PESTAÑA 1: TABLA DE POSICIONES (PRINCIPAL) -->
+        <section id="tab-posiciones" class="tab-content space-y-6">
+            <!-- CARDS DE INCENTIVOS (BOLSA Y MARCADOR JUGADOS) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Campeón</label>
-                    <select id="campeon" class="especial-select w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500"></select>
+                <!-- Bolsa de Dinero acumulada -->
+                <div class="bg-gradient-to-br from-orange-600/20 to-amber-600/10 border-2 border-orange-500 rounded-2xl p-5 shadow-2xl flex items-center justify-between">
+                    <div class="space-y-1">
+                        <span class="text-xs uppercase tracking-widest text-orange-400 font-bold block">💰 Bolsa de Incentivo</span>
+                        <h3 id="txtBolsa" class="text-2xl md:text-3xl font-black text-white animate-pulse">$0.00</h3>
+                        <span class="text-[10px] text-gray-400 block">¡Grupo Kingpin duplica la bolsa acumulada!</span>
+                    </div>
+                    <div class="text-3xl bg-orange-500/20 p-3 rounded-full border border-orange-500/40">🏆</div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Subcampeón</label>
-                    <select id="subcampeon" class="especial-select w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500"></select>
+                <!-- Partidos Jugados Score -->
+                <div class="bg-[#1e293b] border border-gray-800 rounded-2xl p-5 shadow-xl flex items-center justify-between">
+                    <div class="space-y-1">
+                        <span class="text-xs uppercase tracking-widest text-gray-400 font-semibold block">⚽ Marcador del Mundial</span>
+                        <h3 id="txtPartidosScore" class="text-2xl md:text-3xl font-black text-orange-500">0 / 72</h3>
+                        <span class="text-[10px] text-gray-400 block">Partidos de Fase de Grupos Jugados</span>
+                    </div>
+                    <div class="text-3xl bg-gray-800 p-3 rounded-full border border-gray-700">📅</div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Tercer Lugar</label>
-                    <select id="tercerLugar" class="especial-select w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500"></select>
+            </div>
+
+            <!-- TABLERO DE RANKING -->
+            <div class="bg-[#1e293b] border border-gray-800 rounded-2xl p-4 md:p-6 shadow-2xl space-y-4">
+                <h2 class="text-base font-bold text-orange-500 uppercase tracking-wider flex items-center gap-2">🏆 Tabla de Posiciones General</h2>
+                
+                <!-- Contenedor del Podio Top 3 -->
+                <div id="podioContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                    <!-- Dinámico -->
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Último Lugar del Mundial</label>
-                    <select id="ultimoLugar" class="especial-select w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500"></select>
+
+                <!-- Lista del Resto de Participantes con scroll interno -->
+                <div class="border border-gray-800 rounded-xl overflow-hidden mt-4">
+                    <div class="bg-gray-900 grid grid-cols-12 p-3 text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider text-center border-b border-gray-800">
+                        <div class="col-span-2">Pos</div>
+                        <div class="col-span-6 text-left pl-2">Colaborador</div>
+                        <div class="col-span-2">Grupos</div>
+                        <div class="col-span-2">Total</div>
+                    </div>
+                    <!-- Cuerpo del Leaderboard -->
+                    <div id="leaderboardList" class="max-h-[380px] overflow-y-auto divide-y divide-gray-800/60 bg-[#131c2e]">
+                        <div class="text-center py-8 text-sm text-gray-500">Cargando tablero en tiempo real...</div>
+                    </div>
                 </div>
+                <p class="text-[10px] text-center text-gray-500 italic mt-2">Nota: Solo aparecen en el ranking los colaboradores que han liquidado su quiniela ante RH.</p>
             </div>
         </section>
 
-        <!-- BOTÓN DE ENVÍO -->
-        <div class="text-center pt-4">
-            <button id="submitBtn" onclick="enviarQuiniela()" class="w-full md:w-auto bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-black uppercase text-lg px-12 py-4 rounded-xl shadow-lg transform transition-all duration-150 active:scale-95 cursor-pointer">
-                Enviar Mi Quiniela Oficial
-            </button>
-        </div>
+        <!-- PESTAÑA 2: LLENAR QUINIELA -->
+        <section id="tab-quiniela" class="tab-content space-y-6 hidden">
+            <section class="bg-[#1e293b] border border-gray-800 rounded-2xl p-6 shadow-xl space-y-4">
+                <h2 class="text-lg font-bold text-orange-500 flex items-center gap-2">👤 1. Datos del Colaborador</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Sucursal</label>
+                        <select id="sucursalSelect" onchange="cargarNombres()" class="w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500 text-sm">
+                            <option value="">-- Selecciona tu Sucursal --</option>
+                            <option value="Bolerama">Bolerama</option>
+                            <option value="Kingpin Miyana">Kingpin Miyana</option>
+                            <option value="Kingpin Hub">Kingpin Hub</option>
+                            <option value="Corporativo">Corporativo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Tu Nombre</label>
+                        <select id="nombreSelect" disabled class="w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500 text-sm disabled:opacity-40">
+                            <option value="">-- Selecciona primero una sucursal --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="bg-orange-500/10 border border-orange-500/20 p-3 rounded-xl text-xs text-orange-300 leading-relaxed">
+                    💡 Si acabas de pagar y tu nombre aún no aparece, espera un minuto o pídele al encargado de RH que actualice tu registro en la hoja de control.
+                </div>
+            </section>
+
+            <section class="space-y-4">
+                <h2 class="text-lg font-bold text-orange-500 flex items-center gap-2 px-2">⚽ 2. Predicciones Fase de Grupos (72 Partidos)</h2>
+                <div id="partidosContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </section>
+
+            <section class="bg-[#1e293b] border border-gray-800 rounded-2xl p-6 shadow-xl space-y-4">
+                <h2 class="text-lg font-bold text-orange-500 flex items-center gap-2">🏆 3. Posiciones Finales Extra (5 pts c/u)</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Campeón</label>
+                        <select id="campeon" class="especial-select w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500 text-sm"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Subcampeón</label>
+                        <select id="subcampeon" class="especial-select w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500 text-sm"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Tercer Lugar</label>
+                        <select id="tercerLugar" class="especial-select w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500 text-sm"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Último Lugar del Mundial</label>
+                        <select id="ultimoLugar" class="especial-select w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500 text-sm"></select>
+                    </div>
+                </div>
+            </section>
+
+            <div class="text-center pt-4">
+                <div class="w-full bg-gray-800 h-2 rounded-full max-w-xs mx-auto mb-2 overflow-hidden">
+                    <div id="progressBar" class="bg-orange-500 h-full w-0 transition-all duration-300"></div>
+                </div>
+                <p id="progressText" class="text-xs text-gray-400 mb-3 font-medium">Progreso: 0 de 76 predicciones realizadas</p>
+                <button id="submitBtn" onclick="enviarQuiniela()" class="w-full md:w-auto bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-black uppercase text-base px-12 py-3.5 rounded-xl shadow-lg transform transition-all active:scale-95 cursor-pointer">
+                    Enviar Mi Quiniela Oficial
+                </button>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 3: REGLAMENTO -->
+        <section id="tab-reglamento" class="tab-content space-y-4 hidden">
+            <div class="bg-[#1e293b] border border-gray-800 rounded-2xl p-6 shadow-xl">
+                <h2 class="text-lg font-black text-orange-500 uppercase tracking-wider mb-6 pb-2 border-b border-gray-700">📜 Reglamento General de la Quiniela</h2>
+                <ol class="space-y-4 text-sm text-gray-300 leading-relaxed list-none pl-0">
+                    <li class="flex gap-3"><span class="text-orange-500 font-bold font-mono">01.</span> Participan todos los colaboradores ACTIVOS de Grupo Kingpin.</li>
+                    <li class="flex gap-3"><span class="text-orange-500 font-bold font-mono">02.</span> El costo por quiniela es de $200.00 (Doscientos pesos).</li>
+                    <li class="flex gap-3"><span class="text-orange-500 font-bold font-mono">03.</span> La bolsa acumulada será duplicada por Grupo Kingpin, es decir, por cada $200.00 pesos, Grupo Kingpin aporta $200.00 pesos más.</li>
+                    <li class="flex gap-3"><span class="text-orange-500 font-bold font-mono">04.</span> La quiniela se llena señalando y/o rellenando claramente una sola opción, si gana equipo “Local”, "Empate" o “Visitante” (en caso de rellenar más de una opción por juego se invalida la casilla).</li>
+                    <li class="flex gap-3"><span class="text-orange-500 font-bold font-mono">05.</span> Cada acierto equivale a UNO(1) punto de 72 posibles.</li>
+                    <li class="flex gap-3"><span class="text-orange-500 font-bold font-mono">06.</span> Acertar al CAMPEÓN, SUBCAMPEÓN, TERCER LUGAR y ÚLTIMO LUGAR otorga CINCO(5) puntos cada uno de 20 posibles.</li>
+                    <li class="flex gap-3"><span class="text-orange-500 font-bold font-mono">07.</span> Se premian los diez(10) primeros lugares con los puntajes más altos; el primer lugar recibe un porcentaje mayor y así de forma descendente hasta premiar al décimo.</li>
+                    <li class="flex gap-3"><span class="text-orange-500 font-bold font-mono">08.</span> El criterio de desempate será el que tenga más aciertos en la ronda final de Campeón Subcampeón, Tercer lugar y último lugar.</li>
+                    <li class="flex gap-3"><span class="text-orange-500 font-bold font-mono">09.</span> Los colaboradores ganadores deberán estar ACTIVOS a la fecha de premiación.</li>
+                    <li class="flex gap-3"><span class="text-orange-500 font-bold font-mono">10.</span> En caso de que un participante cause BAJA antes de la fecha de premiación pierde el derecho, renuncia al premio, y no existe reembolso de ningún tipo ni motivo.</li>
+                    <li class="flex gap-3"><span class="text-orange-500 font-bold font-mono">11.</span> La fecha límite de registro de quinielas se realiza el día lunes 08 de junio.</li>
+                    <li class="flex gap-3"><span class="text-orange-500 font-bold font-mono">12.</span> La fecha de premiación de realizará una vez terminado el torneo y dados a conocer los resultados de manera oficial.</li>
+                </ol>
+            </div>
+        </section>
 
     </main>
 
-    <footer class="bg-[#0f172a] text-center p-6 border-t border-gray-800 text-xs text-gray-500 mt-12 space-y-1">
-        <p class="font-semibold text-gray-400">&copy; 2026 Grupo Kingpin • Quiniela Interna Automatizada</p>
-        <p>Costo por quiniela: $200.00 • Registro límite: Lunes 08 de Junio de 2026</p>
+    <footer class="bg-[#0f172a] text-center p-4 border-t border-gray-800 text-[10px] text-gray-500 mt-8">
+        <p class="font-semibold text-gray-400">&copy; 2026 Grupo Kingpin • Registro cierra el lunes 08 de junio.</p>
     </footer>
 
     <script>
-        // URL ACTUALIZADA DE TU WEB APP DE GOOGLE SCRIPTS
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyk6cOdNkrqfWCkxp36dfquijWtXlFhMl_6lrIF4qnJiUXQi4ODGegPMho84fRgteDi/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyc88yoijkxwsnS1wnAgRX9syXOJthuQXuwyR6WvEPO-ZNXS51T03cYxveZRGH6p7-O/exec";
 
         const partidosData = [
             { id: 1, local: "MÉXICO", visitante: "SUDÁFRICA" }, { id: 2, local: "COREA", visitante: "CHEQUIA" }, { id: 3, local: "CANADÁ", visitante: "BOSNIA" }, { id: 4, local: "ESTADOS UNIDOS", visitante: "PARAGUAY" },
@@ -129,42 +208,115 @@
         window.onload = function() {
             renderPartidos();
             llenarSelectsEquipos();
-            fetchColaboradores();
-            
-            document.querySelectorAll('.especial-select').forEach(select => {
-                select.addEventListener('change', actualizarProgreso);
-            });
+            fetchDataCompleta();
         };
 
-        // LEER BASE DE DATOS CON ALERTAS DE DIAGNÓSTICO
-        function fetchColaboradores() {
-            fetch(WEB_APP_URL)
-                .then(res => {
-                    if (!res.ok) throw new Error("Respuesta de red incorrecta");
-                    return res.json();
-                })
-                .then(data => {
-                    if (Array.isArray(data)) {
-                        baseColaboradores = data;
-                        if (data.length === 0) {
-                            alert("⚠️ Conexión exitosa, pero la lista está vacía. Revisa que en la hoja 'PAGOS' los estatus estén vacíos o digan 'Pendiente'.");
-                        }
-                    } else {
-                        alert("⚠️ Error: El servidor de Google no devolvió un formato de lista válido.");
-                    }
-                })
-                .catch(err => {
-                    alert("⚠️ Error de conexión con Google Sheets. Asegúrate de haber publicado la Web App de Google con acceso para 'Cualquiera' (Anyone).");
-                    console.error(err);
-                });
+        // NAVEGACIÓN ENTRE PESTAÑAS
+        function cambiarTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('tab-active'));
+            
+            document.getElementById(tabId).classList.remove('hidden');
+            if (tabId === 'tab-posiciones') document.getElementById('btn-posiciones').classList.add('tab-active');
+            if (tabId === 'tab-quiniela') document.getElementById('btn-quiniela').classList.add('tab-active');
+            if (tabId === 'tab-reglamento') document.getElementById('btn-reglamento').classList.add('tab-active');
         }
 
-        // CONTROL INTELIGENTE DE FILTRADO DE NOMBRES
-        function cargarNombres() {
-            const elSelectSucursal = document.getElementById("sucursalSelect");
-            const suc = elSelectSucursal.value.trim().toLowerCase();
-            const nomSelect = document.getElementById("nombreSelect");
+        // DESCARGAR TODA LA DATA (NOMBRES, BOLSA Y LEADERBOARD)
+        function fetchDataCompleta() {
+            fetch(WEB_APP_URL)
+                .then(res => res.json())
+                .then(data => {
+                    baseColaboradores = data.colaboradores || [];
+                    
+                    // Actualizar Bolsa de dinero multiplicada
+                    if(data.bolsa) {
+                        document.getElementById("txtBolsa").textContent = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(data.bolsa);
+                    }
+                    
+                    // Actualizar Contador de partidos jugados
+                    document.getElementById("txtPartidosScore").textContent = `${data.partidosJugados || 0} / 72`;
+                    
+                    // Renderizar Tabla de Posiciones Completa
+                    renderLeaderboard(data.leaderboard || []);
+                })
+                .catch(err => console.error("Error al sincronizar datos:", err));
+        }
+
+        // CONTROL VISUAL DEL RANKING (TOP 3 + RESTO DE LA TABLA)
+        function renderLeaderboard(lista) {
+            const podio = document.getElementById("podioContainer");
+            const resto = document.getElementById("leaderboardList");
             
+            podio.innerHTML = "";
+            resto.innerHTML = "";
+            
+            if (lista.length === 0) {
+                resto.innerHTML = `<div class="text-center py-8 text-gray-500 text-xs">⚽ El torneo no ha comenzado. ¡Los puntajes aparecerán aquí en tiempo real!</div>`;
+                return;
+            }
+
+            // Separar el Top 3 para diseño Premium del Podio
+            const top3 = lista.slice(0, 3);
+            const demas = lista.slice(3);
+
+            // Medallas / Colores para el Podio
+            const estilosPodio = [
+                {bg: "from-amber-500/20 to-yellow-600/10 border-amber-500", icon: "🥇", texto: "text-amber-400"},
+                {bg: "from-slate-400/20 to-slate-500/10 border-slate-400", icon: "🥈", texto: "text-slate-300"},
+                {bg: "from-amber-700/20 to-amber-800/10 border-amber-700", icon: "🥉", texto: "text-amber-600"}
+            ];
+
+            top3.forEach((c, idx) => {
+                const est = estilosPodio[idx] || estilosPodio[2];
+                podio.innerHTML += `
+                    <div class="bg-gradient-to-br ${est.bg} border rounded-xl p-3 text-center shadow-lg">
+                        <div class="text-xl">${est.icon}</div>
+                        <div class="font-black text-sm truncate max-w-[180px] mx-auto">${c.nombre}</div>
+                        <div class="text-[10px] text-gray-400 font-semibold uppercase">${c.sucursal}</div>
+                        <div class="mt-1 text-xs font-bold ${est.texto}">${c.total} Pts</div>
+                    </div>
+                `;
+            });
+
+            // Si hay un Top 3 pero no hay más participantes aún
+            if(lista.length <= 3 && lista.length > 0) {
+                // Rellenar visualmente el podio si faltan competidores iniciales
+                for(let k = lista.length; k < 3; k++) {
+                    const est = estilosPodio[k];
+                    podio.innerHTML += `
+                        <div class="bg-gray-800/40 border border-gray-700/50 border-dashed rounded-xl p-3 text-center text-gray-600 text-xs flex items-center justify-center min-h-[95px]">
+                            Próximo puesto...
+                        </div>
+                    `;
+                }
+            }
+
+            // Combinar Top 3 + Resto en la lista completa deslizable abajo
+            lista.forEach((c) => {
+                let badgeMedalla = `<span class="font-mono">${c.posicion}</span>`;
+                if(c.posicion === 1) badgeMedalla = "🥇";
+                if(c.posicion === 2) badgeMedalla = "🥈";
+                if(c.posicion === 3) badgeMedbola = "🥉";
+
+                resto.innerHTML += `
+                    <div class="grid grid-cols-12 p-3 text-center text-xs items-center font-medium hover:bg-gray-800/20 transition-all">
+                        <div class="col-span-2 font-bold text-gray-400 flex justify-center">${badgeMedalla}</div>
+                        <div class="col-span-6 text-left pl-2">
+                            <div class="font-bold text-white truncate max-w-[150px] md:max-w-xs">${c.nombre}</div>
+                            <div class="text-[9px] text-gray-500 uppercase font-semibold">${c.sucursal}</div>
+                        </div>
+                        <div class="col-span-2 font-mono text-gray-400">${c.aciertos}</div>
+                        <div class="col-span-2 font-black text-orange-500 font-mono">${c.total}</div>
+                    </div>
+                `;
+            });
+        }
+
+        // FUNCIONES DE CONTROL DE LA QUINIELA (FASE DE CAPTURA)
+        function cargarNombres() {
+            const suc = document.getElementById("sucursalSelect").value.trim().toLowerCase();
+            const nomSelect = document.getElementById("nombreSelect");
             nomSelect.innerHTML = '<option value="">-- Selecciona tu Nombre --</option>';
             
             if(!suc) {
@@ -172,23 +324,18 @@
                 return;
             }
             
-            // Filtro avanzado tolerante a espacios y mayúsculas/minúsculas
-            const filtrados = baseColaboradores.filter(c => {
-                const sBase = c.sucursal ? c.sucursal.toString().trim().toLowerCase() : "";
-                return sBase === suc;
-            });
+            const filtrados = baseColaboradores.filter(c => (c.sucursal ? c.sucursal.toString().trim().toLowerCase() : "") === suc);
             
             if (filtrados.length === 0) {
                 let opt = document.createElement("option");
                 opt.value = "";
-                opt.textContent = "⚠️ No hay nombres activos para esta sucursal";
+                opt.textContent = "⚠️ No hay nombres activos pendientes";
                 nomSelect.appendChild(opt);
                 nomSelect.disabled = false;
                 return;
             }
             
             filtrados.sort((a,b) => a.nombre.localeCompare(b.nombre));
-            
             filtrados.forEach(c => {
                 let opt = document.createElement("option");
                 opt.value = c.nombre;
@@ -202,20 +349,20 @@
             const container = document.getElementById("partidosContainer");
             partidosData.forEach(p => {
                 const card = document.createElement("div");
-                card.className = "bg-[#1e293b] border border-gray-800 rounded-xl p-4 shadow flex flex-col justify-between space-y-3";
+                card.className = "bg-[#1e293b] border border-gray-800 rounded-xl p-3 shadow flex flex-col justify-between space-y-2";
                 card.innerHTML = `
-                    <div class="flex justify-between items-center border-b border-gray-700/50 pb-2">
-                        <span class="text-xs font-bold text-orange-500 font-mono">JUEGO #${p.id}</span>
+                    <div class="flex justify-between items-center border-b border-gray-700/40 pb-1.5">
+                        <span class="text-[10px] font-bold text-orange-400 font-mono">JUEGO #${p.id}</span>
                     </div>
-                    <div class="flex items-center justify-around text-sm font-bold py-1">
+                    <div class="flex items-center justify-around text-xs font-bold py-0.5">
                         <span class="w-5/12 text-right truncate">${p.local}</span>
-                        <span class="text-xs text-gray-500 font-normal">VS</span>
+                        <span class="text-[10px] text-gray-500 font-normal">VS</span>
                         <span class="w-5/12 text-left truncate">${p.visitante}</span>
                     </div>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="votar(${p.id}, 'L', this)" class="btn-vote bg-[#0f172a] border border-gray-700 rounded-lg py-2 text-xs font-semibold hover:border-orange-500 transition-all cursor-pointer">L</button>
-                        <button type="button" onclick="votar(${p.id}, 'E', this)" class="btn-vote bg-[#0f172a] border border-gray-700 rounded-lg py-2 text-xs font-semibold hover:border-orange-500 transition-all cursor-pointer">E</button>
-                        <button type="button" onclick="votar(${p.id}, 'V', this)" class="btn-vote bg-[#0f172a] border border-gray-700 rounded-lg py-2 text-xs font-semibold hover:border-orange-500 transition-all cursor-pointer">V</button>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button type="button" onclick="votar(${p.id}, 'L', this)" class="btn-vote bg-[#0f172a] border border-gray-700 rounded-lg py-1.5 text-xs hover:border-orange-500 cursor-pointer">L</button>
+                        <button type="button" onclick="votar(${p.id}, 'E', this)" class="btn-vote bg-[#0f172a] border border-gray-700 rounded-lg py-1.5 text-xs hover:border-orange-500 cursor-pointer">E</button>
+                        <button type="button" onclick="votar(${p.id}, 'V', this)" class="btn-vote bg-[#0f172a] border border-gray-700 rounded-lg py-1.5 text-xs hover:border-orange-500 cursor-pointer">V</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -224,8 +371,7 @@
 
         function votar(partidoId, opcion, elemento) {
             predicciones["P" + partidoId] = opcion;
-            const parent = elemento.parentElement;
-            parent.querySelectorAll(".btn-vote").forEach(btn => btn.classList.remove("active-btn"));
+            elemento.parentElement.querySelectorAll(".btn-vote").forEach(btn => btn.classList.remove("active-btn"));
             elemento.classList.add("active-btn");
             actualizarProgreso();
         }
@@ -235,13 +381,11 @@
             partidosData.forEach(p => { equipos.add(p.local); equipos.add(p.visitante); });
             let equiposArr = Array.from(equipos).sort();
 
-            const selects = document.querySelectorAll(".especial-select");
-            selects.forEach(select => {
+            document.querySelectorAll(".especial-select").forEach(select => {
                 select.innerHTML = '<option value="">-- Selecciona un País --</option>';
                 equiposArr.forEach(eq => {
                     let opt = document.createElement("option");
-                    opt.value = eq;
-                    opt.textContent = eq;
+                    opt.value = eq; opt.textContent = eq;
                     select.appendChild(opt);
                 });
             });
@@ -250,9 +394,7 @@
         function actualizarProgreso() {
             let partidosRespondidos = Object.keys(predicciones).length;
             let especialesRespondidos = 0;
-            document.querySelectorAll(".especial-select").forEach(s => {
-                if(s.value !== "") especialesRespondidos++;
-            });
+            document.querySelectorAll(".especial-select").forEach(s => { if(s.value !== "") especialesRespondidos++; });
             let totalRespondidos = partidosRespondidos + especialesRespondidos;
             let porcentaje = (totalRespondidos / 76) * 100;
             document.getElementById("progressBar").style.width = `${porcentaje}%`;
@@ -267,48 +409,26 @@
             const tercerLugar = document.getElementById("tercerLugar").value;
             const ultimoLugar = document.getElementById("ultimoLugar").value;
 
-            if (!sucursal || !nombre) {
-                alert("❌ Por favor, selecciona tu Sucursal y tu Nombre.");
-                return;
-            }
-            if (Object.keys(predicciones).length < 72) {
-                alert("❌ Te faltan partidos por pronosticar. Debes completar los 72 juegos.");
-                return;
-            }
-            if (!campeon || !subcampeon || !tercerLugar || !ultimoLugar) {
-                alert("❌ Por favor completa las 4 posiciones especiales del torneo.");
-                return;
-            }
+            if (!sucursal || !nombre) { alert("❌ Selecciona tu Sucursal y tu Nombre."); return; }
+            if (Object.keys(predicciones).length < 72) { alert("❌ Completa los 72 partidos de la fase de grupos."); return; }
+            if (!campeon || !subcampeon || !tercerLugar || !ultimoLugar) { alert("❌ Completa las 4 posiciones finales."); return; }
 
             const btn = document.getElementById("submitBtn");
-            btn.disabled = true;
-            btn.textContent = "Procesando y Guardando...";
-
-            const payload = {
-                nombre: nombre,
-                sucursal: sucursal,
-                partidos: predicciones,
-                campeon: campeon,
-                subcampeon: subcampeon,
-                tercerLugar: tercerLugar,
-                ultimoLugar: ultimoLugar
-            };
+            btn.disabled = true; btn.textContent = "Guardando...";
 
             fetch(WEB_APP_URL, {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ nombre, sucursal, partidos: predicciones, campeon, subcampeon, tercerLugar, ultimoLugar })
             })
             .then(() => {
-                alert("🎉 ¡Felicidades! Tu quiniela de Grupo Kingpin ha sido guardada en tiempo real de forma exitosa. ¡Muchísima suerte!");
+                alert("🎉 ¡Felicidades! Tu quiniela de Grupo Kingpin ha sido guardada con éxito en tiempo real. ¡Muchísima suerte!");
                 window.location.reload();
             })
             .catch(err => {
-                alert("❌ Ocurrió un detalle al guardar. Inténtalo de nuevo.");
-                btn.disabled = false;
-                btn.textContent = "Enviar Mi Quiniela Oficial";
-                console.error(err);
+                alert("❌ Ocurrió un error de conexión. Inténtalo de nuevo.");
+                btn.disabled = false; btn.textContent = "Enviar Mi Quiniela Oficial";
             });
         }
     </script>
