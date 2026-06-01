@@ -3,45 +3,307 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiniela Mundial 2026 - Grupo Kingpin</title>
+    <title>Quiniela Qatar 2026 - Grupo Kingpin</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
-        body { font-family: 'Poppins', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #0f172a; }
+        .active-btn { background-color: #ea580c !important; color: white !important; border-color: #ea580c !important; font-weight: bold; }
     </style>
 </head>
-<body class="bg-[#111827] text-white min-h-screen flex flex-col justify-between">
+<body class="text-white min-h-screen flex flex-col justify-between">
 
-    <header class="border-b border-gray-800 bg-[#1f2937] p-6 text-center shadow-xl">
-        <div class="flex flex-col items-center justify-center gap-3">
-            <div class="bg-gray-900/50 p-4 rounded-xl border border-gray-700 max-w-[280px]">
-                <span class="text-orange-500 font-extrabold text-2xl tracking-wider">GRUPO KINGPIN</span>
+    <!-- HEADER CON LOGO -->
+    <header class="border-b border-gray-800 bg-[#1e293b] p-6 text-center shadow-xl sticky top-0 z-50">
+        <div class="flex flex-col items-center justify-center gap-2">
+            <div class="bg-[#0f172a] px-6 py-3 rounded-xl border border-orange-500/30 shadow-inner">
+                <span class="text-[#f97316] font-black text-2xl tracking-widest block">GRUPO KINGPIN</span>
             </div>
-            <h1 class="text-xl md:text-3xl font-black uppercase tracking-tight mt-2 text-white">
-                Quiniela <span class="text-orange-500">Mundial 2026</span>
+            <h1 class="text-xl md:text-2xl font-extrabold uppercase tracking-tight mt-1 text-white">
+                Quiniela <span class="text-[#f97316]">Mundial 2026</span>
             </h1>
-            <p class="text-xs md:text-sm text-gray-400 tracking-wide">MÉXICO • ESTADOS UNIDOS • CANADÁ</p>
+            <!-- Barra de Progreso Fija -->
+            <div class="w-full max-w-md bg-gray-700 h-2.5 rounded-full mt-2 overflow-hidden">
+                <div id="progressBar" class="bg-gradient-to-r from-orange-500 to-amber-500 h-full w-0 transition-all duration-300"></div>
+            </div>
+            <p id="progressText" class="text-xs text-gray-400 font-medium mt-1">Progreso: 0 de 76 predicciones realizadas</p>
         </div>
     </header>
 
-    <main class="flex-grow flex flex-col items-center justify-center p-6 text-center">
-        <div class="bg-[#1f2937] border border-gray-800 rounded-2xl p-8 max-w-md shadow-2xl space-y-6">
-            <div class="inline-flex bg-orange-500/10 text-orange-500 p-4 rounded-full animate-pulse">
-                ⚽
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="max-w-4xl w-full mx-auto p-4 md:p-6 space-y-8 flex-grow">
+        
+        <!-- SECCIÓN 1: DATOS DEL EMPLEADO -->
+        <section class="bg-[#1e293b] border border-gray-800 rounded-2xl p-6 shadow-xl space-y-4">
+            <h2 class="text-lg font-bold text-orange-500 flex items-center gap-2">👤 1. Datos del Colaborador</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Sucursal</label>
+                    <select id="sucursalSelect" onchange="cargarNombres()" class="w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500">
+                        <option value="">-- Selecciona tu Sucursal --</option>
+                        <option value="Bolerama">Bolerama</option>
+                        <option value="Kingpin Miyana">Kingpin Miyana</option>
+                        <option value="Kingpin Hub">Kingpin Hub</option>
+                        <option value="Corporativo">Corporativo</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Tu Nombre</label>
+                    <select id="nombreSelect" disabled class="w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500 disabled:opacity-40">
+                        <option value="">-- Selecciona primero una sucursal --</option>
+                    </select>
+                </div>
             </div>
-            <h2 class="text-2xl font-bold">¡Entorno Web Listo!</h2>
-            <p class="text-gray-400 text-sm leading-relaxed">
-                Esta es la base visual de la app de Grupo Kingpin. El fondo oscuro y los acentos naranjas están configurados para dar una experiencia premium en teléfonos móviles.
-            </p>
-            <div class="bg-gray-900 border border-gray-800 rounded-lg p-3 text-xs text-orange-400 font-mono">
-                Estado: Conexión con Sheets pendiente...
+        </section>
+
+        <!-- SECCIÓN 2: LOS 72 PARTIDOS -->
+        <section class="space-y-4">
+            <h2 class="text-lg font-bold text-orange-500 flex items-center gap-2 px-2">⚽ 2. Predicciones Fase de Grupos (72 Partidos)</h2>
+            <div id="partidosContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Los partidos se inyectan dinámicamente aquí -->
             </div>
+        </section>
+
+        <!-- SECCIÓN 3: PREMIOS ESPECIALES -->
+        <section class="bg-[#1e293b] border border-gray-800 rounded-2xl p-6 shadow-xl space-y-4">
+            <h2 class="text-lg font-bold text-orange-500 flex items-center gap-2">🏆 3. Posiciones Finales Extra (5 pts c/u)</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Campeón</label>
+                    <select id="campeon" class="especial-select w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Subcampeón</label>
+                    <select id="subcampeon" class="especial-select w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Tercer Lugar</label>
+                    <select id="tercerLugar" class="especial-select w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Último Lugar del Mundial</label>
+                    <select id="ultimoLugar" class="especial-select w-full bg-[#0f172a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500"></select>
+                </div>
+            </div>
+        </section>
+
+        <!-- BOTÓN DE ENVÍO -->
+        <div class="text-center pt-4">
+            <button id="submitBtn" onclick="enviarQuiniela()" class="w-full md:w-auto bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-black uppercase text-lg px-12 py-4 rounded-xl shadow-lg transform transition-all duration-150 active:scale-95 cursor-pointer">
+                Enviar Mi Quiniela Oficial
+            </button>
         </div>
+
     </main>
 
-    <footer class="bg-[#0f172a] text-center p-4 border-t border-gray-900 text-xs text-gray-500">
-        &copy; 2026 Grupo Kingpin • Registro cierra el lunes 08 de junio.
+    <footer class="bg-[#0f172a] text-center p-6 border-t border-gray-800 text-xs text-gray-500 mt-12 space-y-1">
+        <p class="font-semibold text-gray-400">&copy; 2026 Grupo Kingpin • Quiniela Interna Automatizada</p>
+        <p>Costo por quiniela: $200.00 • Registro límite: Lunes 08 de Junio de 2026</p>
     </footer>
 
+    <!-- LOGICA DE CONTROL DE LA APLICACIÓN -->
+    <script>
+        // URL DE TU WEB APP DE GOOGLE SCRIPTS INYECTADA
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxtpXtQKJjGkryyyEmLv4nB8mHlrOvg2f89XsFoo5ZjylcTXe-Yy4w_qeQO2Q-K1XEQ/exec";
+
+        // LISTA OFICIAL DE PARTIDOS DEL GRUPO KINGPIN
+        const partidosData = [
+            { id: 1, local: "MÉXICO", visitante: "SUDÁFRICA" }, { id: 2, local: "COREA", visitante: "CHEQUIA" }, { id: 3, local: "CANADÁ", visitante: "BOSNIA" }, { id: 4, local: "ESTADOS UNIDOS", visitante: "PARAGUAY" },
+            { id: 5, local: "CATAR", visitante: "SUIZA" }, { id: 6, local: "BRASIL", visitante: "MARRUECOS" }, { id: 7, local: "HAITI", visitante: "ESCOCIA" }, { id: 8, local: "AUSTRALIA", visitante: "TURQUÍA" },
+            { id: 9, local: "ALEMANIA", visitante: "CURAZAO" }, { id: 10, local: "PAISES B.", visitante: "JAPÓN" }, { id: 11, local: "C. MARFIL", visitante: "ECUADOR" }, { id: 12, local: "SUECIA", visitante: "TUNEZ" },
+            { id: 13, local: "ESPAÑA", visitante: "CABO V." }, { id: 14, local: "BÉLGICA", visitante: "EGIPTO" }, { id: 15, local: "ARABIA S.", visitante: "URUGUAY" }, { id: 16, local: "IRÁN", visitante: "N.ZELANDA" },
+            { id: 17, local: "FRANCIA", visitante: "SENEGAL" }, { id: 18, local: "IRAK", visitante: "NORUEGA" }, { id: 19, local: "ARGENTINA", visitante: "ARGELIA" }, { id: 20, local: "AUSTRIA", visitante: "JORDANIA" },
+            { id: 21, local: "PORTUGAL", visitante: "CONGO" }, { id: 22, local: "INGLATERRA", visitante: "CROACIA" }, { id: 23, local: "GHANA", visitante: "PANAMÁ" }, { id: 24, local: "UZBEKISTÁN", visitante: "COLOMBIA" },
+            { id: 25, local: "CHEQUIA", visitante: "SUDAFRICA" }, { id: 26, local: "SUIZA", visitante: "BOSNIA" }, { id: 27, local: "CANADÁ", visitante: "CATAR" }, { id: 28, local: "MÉXICO", visitante: "COREA" },
+            { id: 29, local: "USA", visitante: "AUSTRALIA" }, { id: 30, local: "ESCOCIA", visitante: "MARRUECOS" }, { id: 31, local: "BRASIL", visitante: "HAITÍ" }, { id: 32, local: "TURQUÍA", visitante: "PARAGUAY" },
+            { id: 33, local: "PAISES B.", visitante: "SUECIA" }, { id: 34, local: "ALEMANIA", visitante: "C. MARFIL" }, { id: 35, local: "ECUADOR", visitante: "CURAZAO" }, { id: 36, local: "TÚNEZ", visitante: "JAPÓN" },
+            { id: 37, local: "ESPAÑA", visitante: "ARABIA S." }, { id: 38, local: "BÉLGICA", visitante: "IRÁN" }, { id: 39, local: "URUGUAY", visitante: "CABO V." }, { id: 40, local: "N.ZELANDA", visitante: "EGIPTO" },
+            { id: 41, local: "ARGENTINA", visitante: "AUSTRIA" }, { id: 42, local: "FRANCIA", visitante: "IRAK" }, { id: 43, local: "NORUEGA", visitante: "SENEGAL" }, { id: 44, local: "JORDANIA", visitante: "ARGELIA" },
+            { id: 45, local: "PORTUGAL", visitante: "UZBEKISTÁN" }, { id: 46, local: "INGLATERRA", visitante: "GHANA" }, { id: 47, local: "PANAMÁ", visitante: "CROACIA" }, { id: 48, local: "COLOMBIA", visitante: "CONGO" },
+            { id: 49, local: "SUIZA", visitante: "CANADÁ" }, { id: 50, local: "BOSNIA", visitante: "CATAR" }, { id: 51, local: "MARRUECOS", visitante: "HAITÍ" }, { id: 52, local: "ESCOCIA", visitante: "BRASIL" },
+            { id: 53, local: "SUDÁFRICA", visitante: "COREA" }, { id: 54, local: "CHEQUIA", visitante: "MÉXICO" }, { id: 55, local: "CURAZAO", visitante: "C. MARFIL" }, { id: 56, local: "ECUADOR", visitante: "ALEMANIA" },
+            { id: 57, local: "TÚNEZ", visitante: "PAISES B." }, { id: 58, local: "JAPÓN", visitante: "SUECIA" }, { id: 59, local: "TURQUÍA", visitante: "USA" }, { id: 60, local: "PARAGUAY", visitante: "AUSTRALIA" },
+            { id: 61, local: "NORUEGA", visitante: "FRANCIA" }, { id: 62, local: "SENEGAL", visitante: "IRAK" }, { id: 63, local: "CABO V.", visitante: "ARABIA S." }, { id: 64, local: "URUGUAY", visitante: "ESPAÑA" },
+            { id: 65, local: "N.ZELANDA", visitante: "BÉLGICA" }, { id: 66, local: "EGIPTO", visitante: "IRÁN" }, { id: 67, local: "PANAMÁ", visitante: "INGLATERRA" }, { id: 68, local: "CROACIA", visitante: "GHANA" },
+            { id: 69, local: "COLOMBIA", visitante: "PORTUGAL" }, { id: 70, local: "CONGO", visitante: "UZBEKISTÁN" }, { id: 71, local: "ARGELIA", visitante: "AUSTRIA" }, { id: 72, local: "JORDANIA", visitante: "ARGENTINA" }
+        ];
+
+        let baseColaboradores = [];
+        let predicciones = {};
+
+        // INICIALIZACIÓN DE LA APP
+        window.onload = function() {
+            renderPartidos();
+            llenarSelectsEquipos();
+            fetchColaboradores();
+            
+            // Listener para cambios en los selectores especiales
+            document.querySelectorAll('.especial-select').forEach(select => {
+                select.addEventListener('change', actualizarProgreso);
+            });
+        };
+
+        // TRAER COLABORADORES ACTIVOS DE SHEETS
+        function fetchColaboradores() {
+            fetch(WEB_APP_URL)
+                .then(res => res.json())
+                .then(data => {
+                    baseColaboradores = data;
+                })
+                .catch(err => console.error("Error cargando personal:", err));
+        }
+
+        // CARGAR NOMBRES BASADO EN LA SUCURSAL SELECCIONADA
+        function cargarNombres() {
+            const suc = document.getElementById("sucursalSelect").value;
+            const nomSelect = document.getElementById("nombreSelect");
+            nomSelect.innerHTML = '<option value="">-- Selecciona tu Nombre --</option>';
+            
+            if(!suc) {
+                nomSelect.disabled = true;
+                return;
+            }
+            
+            const filtrados = baseColaboradores.filter(c => c.sucursal === suc);
+            filtrados.sort((a,b) => a.nombre.localeCompare(b.nombre));
+            
+            filtrados.forEach(c => {
+                let opt = document.createElement("option");
+                opt.value = c.nombre;
+                opt.textContent = c.nombre;
+                nomSelect.appendChild(opt);
+            });
+            nomSelect.disabled = false;
+        }
+
+        // RENDERIZAR CARTAS DE PARTIDOS
+        function renderPartidos() {
+            const container = document.getElementById("partidosContainer");
+            partidosData.forEach(p => {
+                const card = document.createElement("div");
+                card.className = "bg-[#1e293b] border border-gray-800 rounded-xl p-4 shadow flex flex-col justify-between space-y-3";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-gray-700/50 pb-2">
+                        <span class="text-xs font-bold text-orange-500 font-mono">JUEGO #${p.id}</span>
+                    </div>
+                    <div class="flex items-center justify-around text-sm font-bold py-1">
+                        <span class="w-5/12 text-right truncate">${p.local}</span>
+                        <span class="text-xs text-gray-500 font-normal">VS</span>
+                        <span class="w-5/12 text-left truncate">${p.visitante}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="votar(${p.id}, 'L', this)" class="btn-vote bg-[#0f172a] border border-gray-700 rounded-lg py-2 text-xs font-semibold hover:border-orange-500 transition-all cursor-pointer">L</button>
+                        <button type="button" onclick="votar(${p.id}, 'E', this)" class="btn-vote bg-[#0f172a] border border-gray-700 rounded-lg py-2 text-xs font-semibold hover:border-orange-500 transition-all cursor-pointer">E</button>
+                        <button type="button" onclick="votar(${p.id}, 'V', this)" class="btn-vote bg-[#0f172a] border border-gray-700 rounded-lg py-2 text-xs font-semibold hover:border-orange-500 transition-all cursor-pointer">V</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // GUARDAR VOTO INDIVIDUAL
+        function votar(partidoId, opcion, elemento) {
+            predicciones["P" + partidoId] = opcion;
+            
+            // Resetear clases de botones del mismo partido
+            const parent = elemento.parentElement;
+            parent.querySelectorAll(".btn-vote").forEach(btn => btn.classList.remove("active-btn"));
+            
+            // Activar botón seleccionado
+            elemento.classList.add("active-btn");
+            actualizarProgreso();
+        }
+
+        // POBLAR SELECTS ESPECIALES CON EQUIPOS PARTICIPANTES
+        function llenarSelectsEquipos() {
+            let equipos = new Set();
+            partidosData.forEach(p => { equipos.add(p.local); equipos.add(p.visitante); });
+            let equiposArr = Array.from(equipos).sort();
+
+            const selects = document.querySelectorAll(".especial-select");
+            selects.forEach(select => {
+                select.innerHTML = '<option value="">-- Selecciona un País --</option>';
+                equiposArr.forEach(eq => {
+                    let opt = document.createElement("option");
+                    opt.value = eq;
+                    opt.textContent = eq;
+                    select.appendChild(opt);
+                });
+            });
+        }
+
+        // CONTROL DE BARRA DE PROGRESO
+        function actualizarProgreso() {
+            let partidosRespondidos = Object.keys(predicciones).length;
+            let especialesRespondidos = 0;
+            
+            document.querySelectorAll(".especial-select").forEach(s => {
+                if(s.value !== "") especialesRespondidos++;
+            });
+
+            let totalRespondidos = partidosRespondidos + especialesRespondidos;
+            let porcentaje = (totalRespondidos / 76) * 100;
+
+            document.getElementById("progressBar").style.w = porcentaje + "%";
+            document.getElementById("progressBar").style.width = `${porcentaje}%`;
+            document.getElementById("progressText").textContent = `Progreso: ${totalRespondidos} de 76 predicciones realizadas`;
+        }
+
+        // ENVIAR QUINIELA COMPLETA A GOOGLE SHEETS
+        function enviarQuiniela() {
+            const nombre = document.getElementById("nombreSelect").value;
+            const sucursal = document.getElementById("sucursalSelect").value;
+            const campeon = document.getElementById("campeon").value;
+            const subcampeon = document.getElementById("subcampeon").value;
+            const tercerLugar = document.getElementById("tercerLugar").value;
+            const ultimoLugar = document.getElementById("ultimoLugar").value;
+
+            if (!sucursal || !nombre) {
+                alert("❌ Por favor, selecciona tu Sucursal y tu Nombre.");
+                return;
+            }
+
+            if (Object.keys(predicciones).length < 72) {
+                alert("❌ Te faltan partidos por pronosticar. Debes completar los 72 juegos.");
+                return;
+            }
+
+            if (!campeon || !subcampeon || !tercerLugar || !ultimoLugar) {
+                alert("❌ Por favor completa las 4 posiciones especiales del torneo.");
+                return;
+            }
+
+            const btn = document.getElementById("submitBtn");
+            btn.disabled = true;
+            btn.textContent = "Procesando y Guardando...";
+
+            const payload = {
+                nombre: nombre,
+                sucursal: sucursal,
+                partidos: predicciones,
+                campeon: campeon,
+                subcampeon: subcampeon,
+                tercerLugar: tercerLugar,
+                ultimoLugar: ultimoLugar
+            };
+
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                mode: "no-cors", // Requerido para envío a Apps Script sin problemas de origen cruzado
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                alert("🎉 ¡Felicidades! Tu quiniela de Grupo Kingpin ha sido guardada en tiempo real de forma exitosa. ¡Muchísima suerte!");
+                window.location.reload();
+            })
+            .catch(err => {
+                alert("❌ Ocurrió un detalle al guardar. Inténtalo de nuevo.");
+                btn.disabled = false;
+                btn.textContent = "Enviar Mi Quiniela Oficial";
+                console.error(err);
+            });
+        }
+    </script>
 </body>
 </html>
