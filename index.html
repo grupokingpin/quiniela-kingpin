@@ -431,6 +431,116 @@
                 btn.disabled = false; btn.textContent = "Enviar Mi Quiniela Oficial";
             });
         }
+        // === MEJORA: HISTORIAL DE PRONÓSTICOS CON BANDERAS ===
+const BANDERAS_MUNDIAL = {
+  "MEXICO": "🇲🇽", "SUDAFRICA": "🇿🇦", "ARGENTINA": "🇦🇷", "ARABIA SAUDITA": "🇸🇦",
+  "ALEMANIA": "🇩🇪", "AUSTRALIA": "🇺🇺", "BRASIL": "🇧🇷", "BELGICA": "🇧🇪",
+  "BOSNIA": "🇧🇦", "CANADA": "🇨🇦", "COREA DEL SUR": "🇰🇷", "CHEQUIA": "🇨🇿",
+  "COSTA DE MARFIL": "🇨🇮", "CABO VERDE": "🇨🇻", "CROACIA": "🇭🇷", "DINAMARCA": "🇩🇰",
+  "ECUADOR": "🇪🇨", "ESPAÑA": "🇪🇸", "ESTADOS UNIDOS": "🇺🇸", "FRANCIA": "🇫🇷",
+  "GHANA": "🇬🇭", "INGLATERRA": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "IRAN": "🇮🇷", "JAPON": "🇯🇵",
+  "MARRUECOS": "🇲🇦", "PAISES BAJOS": "🇳🇱", "PORTUGAL": "🇵🇹", "SENEGAL": "🇸🇳",
+  "SUIZA": "🇨🇭", "TUNEZ": "🇹🇳", "URUGUAY": "🇺🇾", "ITALIA": "🇮🇹", "COLOMBIA": "🇨🇴"
+};
+
+function obtenerConBandera(nombre) {
+  if (!nombre) return "";
+  let limpio = nombre.toString().toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return BANDERAS_MUNDIAL[limpio] ? BANDERAS_MUNDIAL[limpio] + " " + nombre : nombre;
+}
+
+// Interceptor inteligente: Atrapa los datos del ranking sin romper tu diseño actual
+if (typeof renderLeaderboard === 'function') {
+  const originalRender = renderLeaderboard;
+  renderLeaderboard = function(datos) {
+    originalRender(datos);
+    window.datosLeaderboardGlobal = datos;
+    activarClicksEnTabla();
+  };
+}
+
+// Escucha los clics sobre los nombres en la tabla
+function activarClicksEnTabla() {
+  setTimeout(() => {
+    const filas = document.querySelectorAll("table tbody tr");
+    filas.forEach(fila => {
+      fila.style.cursor = "pointer";
+      fila.addEventListener("click", function() {
+        const celdas = fila.getElementsByTagName("td");
+        if (celdas.length > 1) {
+          for (let celda of celdas) {
+            const nombreTexto = celda.innerText.trim();
+            const usuarioEncontrado = window.datosLeaderboardGlobal.find(u => u.nombre === nombreTexto);
+            if (usuarioEncontrado) {
+              mostrarModalHistorial(usuarioEncontrado);
+              break;
+            }
+          }
+        }
+      });
+    });
+  }, 1000);
+}
+
+// Crea y muestra la ventana flotante en la pantalla del celular
+function mostrarModalHistorial(usuario) {
+  let modal = document.getElementById("modal-historial-kingpin");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "modal-historial-kingpin";
+    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; display:none; justify-content:center; align-items:center; padding:20px; font-family:sans-serif;";
+    document.body.appendChild(modal);
+  }
+
+  modal.style.display = "flex";
+  modal.style.backgroundColor = "rgba(15, 23, 42, 0.95)";
+  
+  const listaPartidosDef = window.partidos || window.PARTIDOS || [];
+  let htmlPartidos = "";
+  const elecciones = usuario.elecciones ? usuario.elecciones.partidos : [];
+  
+  for (let i = 0; i < 72; i++) {
+    let textoPartido = `Partido ${i + 1}`;
+    if (listaPartidosDef[i]) {
+      const localConBandera = obtenerConBandera(listaPartidosDef[i].local || listaPartidosDef[i][2]);
+      const visitanteConBandera = obtenerConBandera(listaPartidosDef[i].visitante || listaPartidosDef[i][3]);
+      textoPartido = `${localConBandera} vs ${visitanteConBandera}`;
+    }
+    
+    const voto = elecciones[i] || "-";
+    htmlPartidos += `
+      <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #334155; text-align:left;">
+        <span style="color:#f8fafc; font-size:14px;">${textoPartido}</span>
+        <span style="background:#ea580c; color:white; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:13px;">${voto}</span>
+      </div>
+    `;
+  }
+
+  const esp = usuario.elecciones ? usuario.elecciones.especiales : [];
+  let htmlEspeciales = `
+    <div style="margin-top:15px; background:#1e293b; padding:10px; border-radius:6px; text-align:left;">
+      <h4 style="margin:0 0 8px 0; color:#ea580c; font-size:14px;">🔮 PRONÓSTICOS ESPECIALES</h4>
+      <p style="margin:4px 0; color:#cbd5e1; font-size:13px;"><b>Campeón:</b> ${obtenerConBandera(esp[0] || "Pendiente")}</p>
+      <p style="margin:4px 0; color:#cbd5e1; font-size:13px;"><b>Subcampeón:</b> ${obtenerConBandera(esp[1] || "Pendiente")}</p>
+    </div>
+  `;
+
+  modal.innerHTML = `
+    <div style="background:#0f172a; border:2px solid #ea580c; border-radius:12px; width:100%; max-width:450px; max-height:85vh; display:flex; flex-direction:column; box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);">
+      <div style="padding:15px; border-bottom:1px solid #ea580c; display:flex; align-items:center; background:#1e293b; border-top-left-radius:10px; border-top-right-radius:10px;">
+        <div style="text-align:left;">
+          <h3 style="margin:0; color:#ffffff; font-size:18px;">${usuario.nombre}</h3>
+          <p style="margin:2px 0 0 0; color:#94a3b8; font-size:12px;">Sucursal: ${usuario.sucursal} | Puntos: ${usuario.total}</p>
+        </div>
+        <button onclick="document.getElementById('modal-historial-kingpin').style.display='none'" style="background:transparent; border:none; color:#ffffff; font-size:28px; cursor:pointer; margin-left:auto; line-height:1;">&times;</button>
+      </div>
+      <div style="padding:15px; overflow-y:auto; flex:1; background:#0f172a;">
+        ${htmlPartidos}
+        ${htmlEspeciales}
+      </div>
+    </div>
+  `;
+}
     </script>
 </body>
 </html>
