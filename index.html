@@ -14,7 +14,6 @@
 </head>
 <body class="text-white min-h-screen flex flex-col justify-between">
 
-    <!-- HEADER CON LOGO -->
     <header class="border-b border-gray-800 bg-[#1e293b] p-4 text-center shadow-xl sticky top-0 z-50">
         <div class="flex flex-col items-center justify-center gap-1">
             <div class="bg-[#0f172a] px-5 py-2 rounded-xl border border-orange-500/30 shadow-inner">
@@ -25,7 +24,6 @@
             </h1>
         </div>
 
-        <!-- MENÚ DE NAVEGACIÓN PREMIUM -->
         <nav class="flex justify-center gap-2 md:gap-6 mt-4 border-t border-gray-700/50 pt-3 text-xs md:text-sm font-bold uppercase tracking-wider">
             <button onclick="cambiarTab('tab-posiciones')" id="btn-posiciones" class="tab-link px-3 py-1.5 border-b-2 border-transparent hover:text-orange-500 transition-all cursor-pointer tab-active">📊 Posiciones</button>
             <button onclick="cambiarTab('tab-quiniela')" id="btn-quiniela" class="tab-link px-3 py-1.5 border-b-2 border-transparent hover:text-orange-500 transition-all cursor-pointer">⚽ Jugar Quiniela</button>
@@ -33,14 +31,10 @@
         </nav>
     </header>
 
-    <!-- CONTAINER PRINCIPAL -->
     <main class="max-w-4xl w-full mx-auto p-4 md:p-6 flex-grow">
         
-        <!-- PESTAÑA 1: TABLA DE POSICIONES (PRINCIPAL) -->
         <section id="tab-posiciones" class="tab-content space-y-6">
-            <!-- CARDS DE INCENTIVOS (BOLSA Y MARCADOR JUGADOS) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Bolsa de Dinero acumulada -->
                 <div class="bg-gradient-to-br from-orange-600/20 to-amber-600/10 border-2 border-orange-500 rounded-2xl p-5 shadow-2xl flex items-center justify-between">
                     <div class="space-y-1">
                         <span class="text-xs uppercase tracking-widest text-orange-400 font-bold block">💰 Bolsa de Incentivo</span>
@@ -49,7 +43,6 @@
                     </div>
                     <div class="text-3xl bg-orange-500/20 p-3 rounded-full border border-orange-500/40">🏆</div>
                 </div>
-                <!-- Partidos Jugados Score -->
                 <div class="bg-[#1e293b] border border-gray-800 rounded-2xl p-5 shadow-xl flex items-center justify-between">
                     <div class="space-y-1">
                         <span class="text-xs uppercase tracking-widest text-gray-400 font-semibold block">⚽ Marcador del Mundial</span>
@@ -60,16 +53,12 @@
                 </div>
             </div>
 
-            <!-- TABLERO DE RANKING -->
             <div class="bg-[#1e293b] border border-gray-800 rounded-2xl p-4 md:p-6 shadow-2xl space-y-4">
                 <h2 class="text-base font-bold text-orange-500 uppercase tracking-wider flex items-center gap-2">🏆 Tabla de Posiciones General</h2>
                 
-                <!-- Contenedor del Podio Top 3 -->
                 <div id="podioContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                    <!-- Dinámico -->
-                </div>
+                    </div>
 
-                <!-- Lista del Resto de Participantes con scroll interno -->
                 <div class="border border-gray-800 rounded-xl overflow-hidden mt-4">
                     <div class="bg-gray-900 grid grid-cols-12 p-3 text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider text-center border-b border-gray-800">
                         <div class="col-span-2">Pos</div>
@@ -77,16 +66,14 @@
                         <div class="col-span-2">Grupos</div>
                         <div class="col-span-2">Total</div>
                     </div>
-                    <!-- Cuerpo del Leaderboard -->
                     <div id="leaderboardList" class="max-h-[380px] overflow-y-auto divide-y divide-gray-800/60 bg-[#131c2e]">
                         <div class="text-center py-8 text-sm text-gray-500">Cargando tablero en tiempo real...</div>
                     </div>
                 </div>
-                <p class="text-[10px] text-center text-gray-500 italic mt-2">Nota: Solo aparecen en el ranking los colaboradores que han liquidado su quiniela ante RH.</p>
+                <p class="text-[10px] text-center text-gray-500 italic mt-2">Nota: Tocando sobre cualquier nombre podrás ver sus pronósticos guardados.</p>
             </div>
         </section>
 
-        <!-- PESTAÑA 2: LLENAR QUINIELA -->
         <section id="tab-quiniela" class="tab-content space-y-6 hidden">
             <section class="bg-[#1e293b] border border-gray-800 rounded-2xl p-6 shadow-xl space-y-4">
                 <h2 class="text-lg font-bold text-orange-500 flex items-center gap-2">👤 1. Datos del Colaborador</h2>
@@ -151,7 +138,6 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 3: REGLAMENTO -->
         <section id="tab-reglamento" class="tab-content space-y-4 hidden">
             <div class="bg-[#1e293b] border border-gray-800 rounded-2xl p-6 shadow-xl">
                 <h2 class="text-lg font-black text-orange-500 uppercase tracking-wider mb-6 pb-2 border-b border-gray-700">📜 Reglamento General de la Quiniela</h2>
@@ -228,6 +214,7 @@
                 .then(res => res.json())
                 .then(data => {
                     baseColaboradores = data.colaboradores || [];
+                    window.datosLeaderboardGlobal = data.leaderboard || [];
                     
                     // Actualizar Bolsa de dinero multiplicada
                     if(data.bolsa) {
@@ -256,11 +243,8 @@
                 return;
             }
 
-            // Separar el Top 3 para diseño Premium del Podio
             const top3 = lista.slice(0, 3);
-            const demas = lista.slice(3);
 
-            // Medallas / Colores para el Podio
             const estilosPodio = [
                 {bg: "from-amber-500/20 to-yellow-600/10 border-amber-500", icon: "🥇", texto: "text-amber-400"},
                 {bg: "from-slate-400/20 to-slate-500/10 border-slate-400", icon: "🥈", texto: "text-slate-300"},
@@ -270,7 +254,7 @@
             top3.forEach((c, idx) => {
                 const est = estilosPodio[idx] || estilosPodio[2];
                 podio.innerHTML += `
-                    <div class="bg-gradient-to-br ${est.bg} border rounded-xl p-3 text-center shadow-lg">
+                    <div data-player-name="${c.nombre}" class="bg-gradient-to-br ${est.bg} border rounded-xl p-3 text-center shadow-lg cursor-pointer transform active:scale-95 transition-all">
                         <div class="text-xl">${est.icon}</div>
                         <div class="font-black text-sm truncate max-w-[180px] mx-auto">${c.nombre}</div>
                         <div class="text-[10px] text-gray-400 font-semibold uppercase">${c.sucursal}</div>
@@ -279,11 +263,8 @@
                 `;
             });
 
-            // Si hay un Top 3 pero no hay más participantes aún
             if(lista.length <= 3 && lista.length > 0) {
-                // Rellenar visualmente el podio si faltan competidores iniciales
                 for(let k = lista.length; k < 3; k++) {
-                    const est = estilosPodio[k];
                     podio.innerHTML += `
                         <div class="bg-gray-800/40 border border-gray-700/50 border-dashed rounded-xl p-3 text-center text-gray-600 text-xs flex items-center justify-center min-h-[95px]">
                             Próximo puesto...
@@ -292,15 +273,14 @@
                 }
             }
 
-            // Combinar Top 3 + Resto en la lista completa deslizable abajo
             lista.forEach((c) => {
                 let badgeMedalla = `<span class="font-mono">${c.posicion}</span>`;
                 if(c.posicion === 1) badgeMedalla = "🥇";
                 if(c.posicion === 2) badgeMedalla = "🥈";
-                if(c.posicion === 3) badgeMedbola = "🥉";
+                if(c.posicion === 3) badgeMedalla = "🥉";
 
                 resto.innerHTML += `
-                    <div class="grid grid-cols-12 p-3 text-center text-xs items-center font-medium hover:bg-gray-800/20 transition-all">
+                    <div data-player-name="${c.nombre}" class="grid grid-cols-12 p-3 text-center text-xs items-center font-medium hover:bg-gray-800/40 transition-all cursor-pointer border-b border-gray-800/30">
                         <div class="col-span-2 font-bold text-gray-400 flex justify-center">${badgeMedalla}</div>
                         <div class="col-span-6 text-left pl-2">
                             <div class="font-bold text-white truncate max-w-[150px] md:max-w-xs">${c.nombre}</div>
@@ -431,60 +411,52 @@
                 btn.disabled = false; btn.textContent = "Enviar Mi Quiniela Oficial";
             });
         }
-// === MEJORA: HISTORIAL DE PRONÓSTICOS CON BANDERAS ===
+
+// === MEJORA DEFINITIVA: HISTORIAL DE PRONÓSTICOS CON BANDERAS ===
 const MI_URL_GOOGLE = "https://script.google.com/macros/s/AKfycbxeNcT4ISmPnSGjVaXDXZF5g5Sb_9aGaxAE_pBAzlTuj424Z3FnS4L6AXgTVEnNIDag/exec";
 
 const BANDERAS_MUNDIAL = {
-  "MEXICO": "🇲🇽", "SUDAFRICA": "🇿🇦", "ARGENTINA": "🇦🇷", "ARABIA SAUDITA": "🇸🇦",
-  "ALEMANIA": "🇩🇪", "AUSTRALIA": "🇦🇺", "BRASIL": "🇧🇷", "BELGICA": "🇧🇪",
-  "BOSNIA": "🇧🇦", "CANADA": "🇨🇦", "COREA DEL SUR": "🇰🇷", "CHEQUIA": "🇨🇿",
-  "COSTA DE MARFIL": "🇨🇮", "CABO VERDE": "🇨🇻", "CROACIA": "🇭🇷", "DINAMARCA": "🇩🇰",
-  "ECUADOR": "🇪🇨", "ESPAÑA": "🇪🇸", "ESTADOS UNIDOS": "🇺🇸", "FRANCIA": "🇫🇷",
-  "GHANA": "🇬🇭", "INGLATERRA": "🇬🇧", "IRAN": "🇮🇷", "JAPON": "🇯🇵",
-  "MARRUECOS": "🇲🇦", "PAISES BAJOS": "🇳🇱", "PORTUGAL": "🇵🇹", "SENEGAL": "🇸🇳",
-  "SUIZA": "🇨🇭", "TUNEZ": "🇹🇳", "URUGUAY": "🇺🇾", "ITALIA": "🇮🇹", "COLOMBIA": "🇨🇴"
+  "MEXICO": "🇲🇽", "MÉXICO": "🇲🇽", "SUDAFRICA": "🇿🇦", "SUDÁFRICA": "🇿🇦", "ARGENTINA": "🇦🇷", "ARABIA S.": "🇸🇦", "ARABIA SAUDITA": "🇸🇦",
+  "ALEMANIA": "🇩🇪", "AUSTRALIA": "🇦🇺", "BRASIL": "🇧🇷", "BELGICA": "🇧🇪", "BÉLGICA": "🇧🇪",
+  "BOSNIA": "🇧🇦", "CANADA": "🇨🇦", "CANADÁ": "🇨🇦", "COREA": "🇰🇷", "COREA DEL SUR": "🇰🇷", "CHEQUIA": "🇨🇿",
+  "C. MARFIL": "🇨🇮", "COSTA DE MARFIL": "🇨🇮", "CABO VERDE": "🇨🇻", "CABO V.": "🇨🇻", "CROACIA": "🇭🇷", "DINAMARCA": "🇩🇰",
+  "ECUADOR": "🇪🇨", "ESPAÑA": "🇪🇸", "ESTADOS UNIDOS": "🇺🇸", "USA": "🇺🇸", "FRANCIA": "🇫🇷",
+  "GHANA": "🇬🇭", "INGLATERRA": "🇬🇧", "IRAN": "🇮🇷", "IRÁN": "🇮🇷", "JAPON": "🇯🇵", "JAPÓN": "🇯🇵",
+  "MARRUECOS": "🇲🇦", "PAISES B.": "🇳🇱", "PAISES BAJOS": "🇳🇱", "PORTUGAL": "🇵🇹", "SENEGAL": "🇸🇳",
+  "SUIZA": "🇨🇭", "TUNEZ": "🇹🇳", "TÚNEZ": "🇹🇳", "URUGUAY": "🇺🇾", "ITALIA": "🇮🇹", "COLOMBIA": "🇨🇴"
 };
 
 function obtenerConBandera(nombre) {
   if (!nombre) return "";
-  let limpio = nombre.toString().toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  let limpio = nombre.toString().toUpperCase().trim();
   return BANDERAS_MUNDIAL[limpio] ? BANDERAS_MUNDIAL[limpio] + " " + nombre : nombre;
 }
 
-// Interceptor en fase de captura (true) para saltar cualquier bloqueo del sitio
+// Escuchador inteligente nativo para los elementos div interactivos de la app
 document.addEventListener("click", async function(e) {
-  let fila = e.target.closest("tr");
-  if (!fila) return;
+  let contenedorJugador = e.target.closest("[data-player-name]");
+  if (!contenedorJugador) return;
   
-  let celdas = fila.getElementsByTagName("td");
-  if (celdas.length === 0) return; 
-
-  let nombreDetectado = "";
-  for (let celda of celdas) {
-    let texto = celda.innerText.trim();
-    if (texto && isNaN(texto) && texto.length > 2 && !["PENDIENTE", "REGISTRADA", "VALIDADO"].includes(texto.toUpperCase())) {
-      nombreDetectado = texto;
-      break;
-    }
-  }
-  
+  let nombreDetectado = contenedorJugador.getAttribute("data-player-name");
   if (!nombreDetectado) return;
 
   let aviso = document.getElementById("aviso-carga-kingpin");
   if (!aviso) {
     aviso = document.createElement("div");
     aviso.id = "aviso-carga-kingpin";
-    aviso.style = "position:fixed; bottom:20px; right:20px; background:#ea580c; color:white; padding:12px 24px; border-radius:8px; z-index:10000; font-family:sans-serif; font-size:14px; font-weight:bold; box-shadow:0 4px 12px rgba(0,0,0,0.5);";
+    aviso.style = "position:fixed; bottom:20px; right:20px; background:#ea580c; color:white; padding:12px 24px; border-radius:8px; z-index:10000; font-family:sans-serif; font-size:14px; font-weight:bold; box-shadow:0 4px 12px rgba(0,0,0,0.5); pointer-events:none;";
     document.body.appendChild(aviso);
   }
   aviso.innerText = "⚽ Conectando con Google Sheets...";
 
   try {
-    let res = await fetch(MI_URL_GOOGLE);
-    let json = await res.json();
-    let listaUsuarios = json.leaderboard || json;
+    if (!window.datosLeaderboardGlobal || window.datosLeaderboardGlobal.length === 0) {
+      let res = await fetch(MI_URL_GOOGLE);
+      let json = await res.json();
+      window.datosLeaderboardGlobal = json.leaderboard || json;
+    }
     
-    let usuarioEncontrado = listaUsuarios.find(u => 
+    let usuarioEncontrado = window.datosLeaderboardGlobal.find(u => 
       u.nombre && u.nombre.toString().trim().toUpperCase() === nombreDetectado.toUpperCase()
     );
 
@@ -492,12 +464,12 @@ document.addEventListener("click", async function(e) {
       aviso.remove();
       mostrarModalHistorial(usuarioEncontrado);
     } else {
-      aviso.innerText = "❌ No se encontraron pronósticos para " + nombreDetectado;
-      setTimeout(() => aviso.remove(), 3000);
+      aviso.innerText = "❌ No se encontraron pronósticos cargados.";
+      setTimeout(() => aviso.remove(), 2500);
     }
   } catch(err) {
     aviso.innerText = "❌ Error al conectar con la base de datos.";
-    setTimeout(() => aviso.remove(), 3000);
+    setTimeout(() => aviso.remove(), 2500);
   }
 }, true);
 
@@ -506,7 +478,7 @@ function mostrarModalHistorial(usuario) {
   if (!modal) {
     modal = document.createElement("div");
     modal.id = "modal-historial-kingpin";
-    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; display:none; justify-content:center; align-items:center; padding:20px; font-family:sans-serif;";
+    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; display:none; justify-content:center; align-items:center; padding:16px; font-family:sans-serif;";
     document.body.appendChild(modal);
   }
 
@@ -514,45 +486,46 @@ function mostrarModalHistorial(usuario) {
   modal.style.backgroundColor = "rgba(15, 23, 42, 0.95)";
   
   let htmlPartidos = "";
-  const elecciones = usuario.elecciones ? usuario.elecciones.partidos : [];
-  const listaPartidosDef = window.partidos || window.PARTIDOS || [];
+  const elecciones = (usuario.elecciones && usuario.elecciones.partidos) ? usuario.elecciones.partidos : [];
   
   for (let i = 0; i < 72; i++) {
     let textoPartido = `Partido ${i + 1}`;
-    if (listaPartidosDef[i]) {
-      let loc = listaPartidosDef[i].local || listaPartidosDef[i][2] || "";
-      let vis = listaPartidosDef[i].visitante || listaPartidosDef[i][3] || "";
+    if (partidosData[i]) {
+      let loc = partidosData[i].local || "";
+      let vis = partidosData[i].visitante || "";
       if (loc && vis) textoPartido = `${obtenerConBandera(loc)} vs ${obtenerConBandera(vis)}`;
     }
     
     const voto = elecciones[i] || "-";
     htmlPartidos += `
       <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #334155; text-align:left;">
-        <span style="color:#f8fafc; font-size:14px;">${textoPartido}</span>
-        <span style="background:#ea580c; color:white; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:13px;">${voto}</span>
+        <span style="color:#f8fafc; font-size:13px; font-weight:500;">${textoPartido}</span>
+        <span style="background:#ea580c; color:white; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:12px;">${voto}</span>
       </div>
     `;
   }
 
-  const esp = usuario.elecciones ? usuario.elecciones.especiales : [];
+  const esp = (usuario.elecciones && usuario.elecciones.especiales) ? usuario.elecciones.especiales : [];
   let htmlEspeciales = `
-    <div style="margin-top:15px; background:#1e293b; padding:10px; border-radius:6px; text-align:left;">
-      <h4 style="margin:0 0 8px 0; color:#ea580c; font-size:14px;">🔮 PRONÓSTICOS ESPECIALES</h4>
+    <div style="margin-top:15px; background:#1e293b; padding:12px; border-radius:8px; text-align:left; border:1px solid #334155;">
+      <h4 style="margin:0 0 8px 0; color:#ea580c; font-size:14px; font-weight:bold; tracking:wider;">🔮 PRONÓSTICOS ESPECIALES</h4>
       <p style="margin:4px 0; color:#cbd5e1; font-size:13px;"><b>Campeón:</b> ${obtenerConBandera(esp[0] || "Pendiente")}</p>
       <p style="margin:4px 0; color:#cbd5e1; font-size:13px;"><b>Subcampeón:</b> ${obtenerConBandera(esp[1] || "Pendiente")}</p>
+      <p style="margin:4px 0; color:#cbd5e1; font-size:13px;"><b>Tercer Lugar:</b> ${obtenerConBandera(esp[2] || "Pendiente")}</p>
+      <p style="margin:4px 0; color:#cbd5e1; font-size:13px;"><b>Último Lugar:</b> ${obtenerConBandera(esp[3] || "Pendiente")}</p>
     </div>
   `;
 
   modal.innerHTML = `
-    <div style="background:#0f172a; border:2px solid #ea580c; border-radius:12px; width:100%; max-width:450px; max-height:85vh; display:flex; flex-direction:column; box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);">
-      <div style="padding:15px; border-bottom:1px solid #ea580c; display:flex; align-items:center; background:#1e293b; border-top-left-radius:10px; border-top-right-radius:10px;">
+    <div style="background:#0f172a; border:2px solid #ea580c; border-radius:16px; width:100%; max-width:440px; max-height:80vh; display:flex; flex-direction:column; box-shadow:0 25px 50px -12px rgba(0,0,0,0.7);">
+      <div style="padding:16px; border-bottom:1px solid #ea580c; display:flex; align-items:center; background:#1e293b; border-top-left-radius:14px; border-top-right-radius:14px;">
         <div style="text-align:left;">
-          <h3 style="margin:0; color:#ffffff; font-size:18px;">${usuario.nombre}</h3>
-          <p style="margin:2px 0 0 0; color:#94a3b8; font-size:12px;">Sucursal: ${usuario.sucursal} | Puntos: ${usuario.total}</p>
+          <h3 style="margin:0; color:#ffffff; font-size:16px; font-weight:bold;">${usuario.nombre}</h3>
+          <p style="margin:2px 0 0 0; color:#94a3b8; font-size:12px; font-weight:600; uppercase">Sucursal: ${usuario.sucursal} | Total: ${usuario.total} Pts</p>
         </div>
         <button onclick="document.getElementById('modal-historial-kingpin').style.display='none'" style="background:transparent; border:none; color:#ffffff; font-size:28px; cursor:pointer; margin-left:auto; line-height:1;">&times;</button>
       </div>
-      <div style="padding:15px; overflow-y:auto; flex:1; background:#0f172a;">
+      <div style="padding:16px; overflow-y:auto; flex:1; background:#0f172a;">
         ${htmlPartidos}
         ${htmlEspeciales}
       </div>
