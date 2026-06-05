@@ -431,7 +431,7 @@
                 btn.disabled = false; btn.textContent = "Enviar Mi Quiniela Oficial";
             });
         }
-     // === MEJORA: HISTORIAL DE PRONÓSTICOS CON BANDERAS ===
+    // === MEJORA: HISTORIAL DE PRONÓSTICOS CON BANDERAS ===
 const BANDERAS_MUNDIAL = {
   "MEXICO": "🇲🇽", "SUDAFRICA": "🇿🇦", "ARGENTINA": "🇦🇷", "ARABIA SAUDITA": "🇸🇦",
   "ALEMANIA": "🇩🇪", "AUSTRALIA": "🇦🇺", "BRASIL": "🇧🇷", "BELGICA": "🇧🇪",
@@ -449,40 +449,42 @@ function obtenerConBandera(nombre) {
   return BANDERAS_MUNDIAL[limpio] ? BANDERAS_MUNDIAL[limpio] + " " + nombre : nombre;
 }
 
-// Interceptor inteligente: Atrapa los datos del ranking sin romper tu diseño actual
+// Interceptor Blindado: Captura los datos sin importar el formato en que lleguen
 if (typeof renderLeaderboard === 'function') {
   const originalRender = renderLeaderboard;
   renderLeaderboard = function(datos) {
     originalRender(datos);
-    window.datosLeaderboardGlobal = datos;
-    activarClicksEnTabla();
+    if (Array.isArray(datos)) {
+      window.datosLeaderboardGlobal = datos;
+    } else if (datos && Array.isArray(datos.leaderboard)) {
+      window.datosLeaderboardGlobal = datos.leaderboard;
+    } else if (datos && datos.data && Array.isArray(datos.data.leaderboard)) {
+      window.datosLeaderboardGlobal = datos.data.leaderboard;
+    }
   };
 }
 
-// Escucha los clics sobre los nombres en la tabla
-function activarClicksEnTabla() {
-  setTimeout(() => {
-    const filas = document.querySelectorAll("table tbody tr");
-    filas.forEach(fila => {
-      fila.style.cursor = "pointer";
-      fila.addEventListener("click", function() {
-        const celdas = fila.getElementsByTagName("td");
-        if (celdas.length > 1) {
-          for (let celda of celdas) {
-            const nombreTexto = celda.innerText.trim();
-            const usuarioEncontrado = window.datosLeaderboardGlobal.find(u => u.nombre === nombreTexto);
-            if (usuarioEncontrado) {
-              mostrarModalHistorial(usuarioEncontrado);
-              break;
-            }
-          }
-        }
-      });
-    });
-  }, 1000);
-}
+// Escucha inteligente: Detecta el clic al instante en cualquier celda de la tabla
+document.addEventListener("click", function(e) {
+  let fila = e.target.closest("tr");
+  if (!fila) return;
+  
+  let celdas = fila.getElementsByTagName("td");
+  if (celdas.length === 0) return; // Ignora los encabezados
+  
+  if (window.datosLeaderboardGlobal) {
+    for (let celda of celdas) {
+      let nombreTexto = celda.innerText.trim();
+      let usuarioEncontrado = window.datosLeaderboardGlobal.find(u => u.nombre === nombreTexto);
+      if (usuarioEncontrado) {
+        mostrarModalHistorial(usuarioEncontrado);
+        break;
+      }
+    }
+  }
+});
 
-// Crea y muestra la ventana flotante en la pantalla del celular
+// Crea y muestra la ventana flotante en la pantalla
 function mostrarModalHistorial(usuario) {
   let modal = document.getElementById("modal-historial-kingpin");
   if (!modal) {
@@ -502,9 +504,11 @@ function mostrarModalHistorial(usuario) {
   for (let i = 0; i < 72; i++) {
     let textoPartido = `Partido ${i + 1}`;
     if (listaPartidosDef[i]) {
-      const localConBandera = obtenerConBandera(listaPartidosDef[i].local || listaPartidosDef[i][2]);
-      const visitanteConBandera = obtenerConBandera(listaPartidosDef[i].visitante || listaPartidosDef[i][3]);
-      textoPartido = `${localConBandera} vs ${visitanteConBandera}`;
+      let loc = listaPartidosDef[i].local || listaPartidosDef[i][2] || "";
+      let vis = listaPartidosDef[i].visitante || listaPartidosDef[i][3] || "";
+      if (loc && vis) {
+        textoPartido = `${obtenerConBandera(loc)} vs ${obtenerConBandera(vis)}`;
+      }
     }
     
     const voto = elecciones[i] || "-";
