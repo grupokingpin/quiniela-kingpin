@@ -431,7 +431,7 @@
                 btn.disabled = false; btn.textContent = "Enviar Mi Quiniela Oficial";
             });
         }
-    // === MEJORA: HISTORIAL DE PRONÓSTICOS CON BANDERAS ===
+   // === MEJORA: HISTORIAL DE PRONÓSTICOS CON BANDERAS ===
 const BANDERAS_MUNDIAL = {
   "MEXICO": "🇲🇽", "SUDAFRICA": "🇿🇦", "ARGENTINA": "🇦🇷", "ARABIA SAUDITA": "🇸🇦",
   "ALEMANIA": "🇩🇪", "AUSTRALIA": "🇦🇺", "BRASIL": "🇧🇷", "BELGICA": "🇧🇪",
@@ -449,33 +449,47 @@ function obtenerConBandera(nombre) {
   return BANDERAS_MUNDIAL[limpio] ? BANDERAS_MUNDIAL[limpio] + " " + nombre : nombre;
 }
 
-// Interceptor Blindado: Captura los datos sin importar el formato en que lleguen
+// Radar de Red: Atrapa los datos directamente de internet sin importar los tiempos de carga
+(function() {
+  const deVerdadFetch = window.fetch;
+  window.fetch = async function(...args) {
+    const res = await deVerdadFetch(...args);
+    try {
+      const clon = res.clone();
+      clon.json().then(json => {
+        if (json && json.leaderboard) window.datosLeaderboardGlobal = json.leaderboard;
+        else if (Array.isArray(json)) window.datosLeaderboardGlobal = json;
+      });
+    } catch(e) {}
+    return res;
+  };
+})();
+
+// Respaldo por si la función renderLeaderboard ya existía globalmente
 if (typeof renderLeaderboard === 'function') {
   const originalRender = renderLeaderboard;
   renderLeaderboard = function(datos) {
     originalRender(datos);
-    if (Array.isArray(datos)) {
-      window.datosLeaderboardGlobal = datos;
-    } else if (datos && Array.isArray(datos.leaderboard)) {
-      window.datosLeaderboardGlobal = datos.leaderboard;
-    } else if (datos && datos.data && Array.isArray(datos.data.leaderboard)) {
-      window.datosLeaderboardGlobal = datos.data.leaderboard;
-    }
+    if (datos && datos.leaderboard) window.datosLeaderboardGlobal = datos.leaderboard;
+    else if (Array.isArray(datos)) window.datosLeaderboardGlobal = datos;
   };
 }
 
-// Escucha inteligente: Detecta el clic al instante en cualquier celda de la tabla
+// Escucha inteligente de clics
 document.addEventListener("click", function(e) {
   let fila = e.target.closest("tr");
   if (!fila) return;
   
   let celdas = fila.getElementsByTagName("td");
-  if (celdas.length === 0) return; // Ignora los encabezados
+  if (celdas.length === 0) return; 
   
   if (window.datosLeaderboardGlobal) {
     for (let celda of celdas) {
-      let nombreTexto = celda.innerText.trim();
-      let usuarioEncontrado = window.datosLeaderboardGlobal.find(u => u.nombre === nombreTexto);
+      let nombreTexto = celda.innerText.trim().toUpperCase();
+      let usuarioEncontrado = window.datosLeaderboardGlobal.find(u => 
+        u.nombre && u.nombre.toString().trim().toUpperCase() === nombreTexto
+      );
+      
       if (usuarioEncontrado) {
         mostrarModalHistorial(usuarioEncontrado);
         break;
@@ -484,7 +498,7 @@ document.addEventListener("click", function(e) {
   }
 });
 
-// Crea y muestra la ventana flotante en la pantalla
+// Crear y diseñar la ventana flotante en la pantalla
 function mostrarModalHistorial(usuario) {
   let modal = document.getElementById("modal-historial-kingpin");
   if (!modal) {
