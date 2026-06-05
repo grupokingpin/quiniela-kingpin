@@ -431,7 +431,7 @@
                 btn.disabled = false; btn.textContent = "Enviar Mi Quiniela Oficial";
             });
         }
-   // === MEJORA: HISTORIAL DE PRONÓSTICOS CON BANDERAS ===
+ // === MEJORA: HISTORIAL DE PRONÓSTICOS CON BANDERAS ===
 const BANDERAS_MUNDIAL = {
   "MEXICO": "🇲🇽", "SUDAFRICA": "🇿🇦", "ARGENTINA": "🇦🇷", "ARABIA SAUDITA": "🇸🇦",
   "ALEMANIA": "🇩🇪", "AUSTRALIA": "🇦🇺", "BRASIL": "🇧🇷", "BELGICA": "🇧🇪",
@@ -445,60 +445,67 @@ const BANDERAS_MUNDIAL = {
 
 function obtenerConBandera(nombre) {
   if (!nombre) return "";
-  let limpio = nombre.toString().toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  return BANDERAS_MUNDIAL[limpio] ? BANDERAS_MUNDIAL[limpio] + " " + nombre : nombre;
+  let limpio = name => name.toString().toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return BANDERAS_MUNDIAL[limpio(nombre)] ? BANDERAS_MUNDIAL[limpio(nombre)] + " " + nombre : nombre;
 }
 
-// Radar de Red: Atrapa los datos directamente de internet sin importar los tiempos de carga
-(function() {
-  const deVerdadFetch = window.fetch;
-  window.fetch = async function(...args) {
-    const res = await deVerdadFetch(...args);
-    try {
-      const clon = res.clone();
-      clon.json().then(json => {
-        if (json && json.leaderboard) window.datosLeaderboardGlobal = json.leaderboard;
-        else if (Array.isArray(json)) window.datosLeaderboardGlobal = json;
-      });
-    } catch(e) {}
-    return res;
-  };
-})();
-
-// Respaldo por si la función renderLeaderboard ya existía globalmente
-if (typeof renderLeaderboard === 'function') {
-  const originalRender = renderLeaderboard;
-  renderLeaderboard = function(datos) {
-    originalRender(datos);
-    if (datos && datos.leaderboard) window.datosLeaderboardGlobal = datos.leaderboard;
-    else if (Array.isArray(datos)) window.datosLeaderboardGlobal = datos;
-  };
-}
-
-// Escucha inteligente de clics
-document.addEventListener("click", function(e) {
+// Escucha inteligente: Al hacer clic, descarga los pronósticos directo de Google Sheets
+document.addEventListener("click", async function(e) {
   let fila = e.target.closest("tr");
   if (!fila) return;
   
   let celdas = fila.getElementsByTagName("td");
   if (celdas.length === 0) return; 
-  
+
+  // 1. Si no tenemos los datos cargados, los traemos directamente usando tu URL configurada
+  if (!window.datosLeaderboardGlobal) {
+    try {
+      let aviso = document.createElement("div");
+      aviso.id = "aviso-carga-kingpin";
+      aviso.style = "position:fixed; bottom:20px; right:20px; background:#ea580c; color:white; padding:10px 20px; border-radius:5px; z-index:10000; font-family:sans-serif; font-size:14px; box-shadow:0 4px 6px rgba(0,0,0,0.3);";
+      aviso.innerText = "⚽ Conectando con la base de datos...";
+      document.body.appendChild(aviso);
+
+      if (typeof WEB_APP_URL === 'undefined') {
+        aviso.innerText = "❌ Error: Enlace no detectado.";
+        setTimeout(() => aviso.remove(), 3000);
+        return;
+      }
+
+      let res = await fetch(WEB_APP_URL);
+      let json = await res.json();
+      
+      if (json && json.leaderboard) window.datosLeaderboardGlobal = json.leaderboard;
+      else if (Array.isArray(json)) window.datosLeaderboardGlobal = json;
+      
+      aviso.remove();
+    } catch(err) {
+      let aviso = document.getElementById("aviso-carga-kingpin");
+      if(aviso) {
+        aviso.innerText = "❌ Error al leer las respuestas.";
+        setTimeout(() => aviso.remove(), 3000);
+      }
+      return;
+    }
+  }
+
+  // 2. Busca qué nombre de la fila coincide con la base de datos
   if (window.datosLeaderboardGlobal) {
     for (let celda of celdas) {
-      let nombreTexto = celda.innerText.trim().toUpperCase();
+      let textoCelda = celda.innerText.trim().toUpperCase();
       let usuarioEncontrado = window.datosLeaderboardGlobal.find(u => 
-        u.nombre && u.nombre.toString().trim().toUpperCase() === nombreTexto
+        u.nombre && u.nombre.toString().trim().toUpperCase() === textoCelda
       );
       
       if (usuarioEncontrado) {
         mostrarModalHistorial(usuarioEncontrado);
-        break;
+        return;
       }
     }
   }
 });
 
-// Crear y diseñar la ventana flotante en la pantalla
+// Crear la ventana flotante en la pantalla
 function mostrarModalHistorial(usuario) {
   let modal = document.getElementById("modal-historial-kingpin");
   if (!modal) {
