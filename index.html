@@ -168,14 +168,14 @@
             { id: 25, local: "CHEQUIA", visitante: "SUDAFRICA" }, { id: 26, local: "SUIZA", visitante: "BOSNIA" }, { id: 27, local: "CANADá", visitante: "CATAR" }, { id: 28, local: "MéXICO", visitante: "COREA" },
             { id: 29, local: "USA", visitante: "AUSTRALIA" }, { id: 30, local: "ESCOCIA", visitante: "MARRUECOS" }, { id: 31, local: "BRASIL", visitante: "HAITí" }, { id: 32, local: "TURQUíA", visitante: "PARAGUAY" },
             { id: 33, local: "PAISES B.", visitante: "SUECIA" }, { id: 34, local: "ALEMANIA", visitante: "C. MARFIL" }, { id: 35, local: "ECUADOR", visitante: "CURAZAO" }, { id: 36, local: "TúNEZ", visitante: "JAPóN" },
-            { id: 37, local: "ESPAñA", visitante: "ARABIA S." }, { id: 38, local: "BéLGICA", visitante: "IRáN" }, { id: 39, local: "URUGUAY", visitante: "CABO V." }, { id: 40, local: "N.ZELANDA", visitante: "EGIPTO" },
+            { id: 37, local: "ESPAñA", visitante: "ARABIA S." }, { id: 38, local: "BéLGICA", visitante: "IRáN" }, { id: 39, originalId: 39, local: "URUGUAY", visitante: "CABO V." }, { id: 40, local: "N.ZELANDA", visitante: "EGIPTO" },
             { id: 41, local: "ARGENTINA", visitante: "AUSTRIA" }, { id: 42, local: "FRANCIA", visitante: "IRAK" }, { id: 43, local: "NORUEGA", visitante: "SENEGAL" }, { id: 44, local: "JORDANIA", visitante: "ARGELIA" },
             { id: 45, local: "PORTUGAL", visitante: "UZBEKISTáN" }, { id: 46, local: "INGLATERRA", visitante: "GHANA" }, { id: 47, local: "PANAMá", visitante: "CROACIA" }, { id: 48, local: "COLOMBIA", visitante: "CONGO" },
             { id: 49, local: "SUIZA", visitante: "CANADá" }, { id: 50, local: "BOSNIA", visitante: "CATAR" }, { id: 51, local: "MARRUECOS", visitante: "HAITí" }, { id: 52, local: "ESCOCIA", visitante: "BRASIL" },
             { id: 53, local: "SUDáFRICA", visitante: "COREA" }, { id: 54, local: "CHEQUIA", visitante: "MéXICO" }, { id: 55, local: "CURAZAO", visitante: "C. MARFIL" }, { id: 56, local: "ECUADOR", visitante: "ALEMANIA" },
             { id: 57, local: "TúNEZ", visitante: "PAISES B." }, { id: 58, local: "JAPóN", visitante: "SUECIA" }, { id: 59, local: "TURQUíA", visitante: "USA" }, { id: 60, local: "PARAGUAY", visitante: "AUSTRALIA" },
             { id: 61, local: "NORUEGA", visitante: "FRANCIA" }, { id: 62, local: "SENEGAL", visitante: "IRAK" }, { id: 63, local: "CABO V.", visitante: "ARABIA S." }, { id: 64, local: "URUGUAY", visitante: "ESPAñA" },
-            { id: 65, local: "N.ZELANDA", visitante: "BéLGICA" }, { id: 66, local: "EGIPTO", visitante: "IRáN" }, { id: 67, local: "PANAMá", visitante: "INGLATERRA" }, { id: 68, open: "CROACIA", visitante: "GHANA" },
+            { id: 65, local: "N.ZELANDA", visitante: "BéLGICA" }, { id: 66, local: "EGIPTO", visitante: "IRáN" }, { id: 67, local: "PANAMá", visitante: "INGLATERRA" }, { id: 68, local: "CROACIA", visitante: "GHANA" },
             { id: 69, local: "COLOMBIA", visitante: "PORTUGAL" }, { id: 70, local: "CONGO", visitante: "UZBEKISTáN" }, { id: 71, local: "ARGELIA", visitante: "AUSTRIA" }, { id: 72, local: "JORDANIA", visitante: "ARGENTINA" }
         ];
 
@@ -433,12 +433,11 @@ document.addEventListener("click", async function(e) {
   aviso.innerText = "⚽ Conectando con Google Sheets...";
 
   try {
-    if (!window.datosLeaderboardGlobal || window.datosLeaderboardGlobal.length === 0) {
-      let res = await fetch(MI_URL_GOOGLE);
-      let json = await res.json();
-      window.datosLeaderboardGlobal = json.leaderboard || json;
-      window.resultadosRealesGlobal = json.resultadosReales || [];
-    }
+    // Forzamos la descarga para asegurar que no se salte los resultados cargados en vivo
+    let res = await fetch(MI_URL_GOOGLE);
+    let json = await res.json();
+    window.datosLeaderboardGlobal = json.leaderboard || json;
+    window.resultadosRealesGlobal = json.resultadosReales || [];
     
     let usuarioEncontrado = window.datosLeaderboardGlobal.find(u => 
       u.nombre && u.nombre.toString().trim().toUpperCase() === nombreDetectado.toUpperCase()
@@ -502,6 +501,8 @@ function mostrarModalHistorial(usuario) {
     `;
   }
 
+  let partidosDetectados = resultadosReales.filter(r => ["L", "E", "V"].includes(r)).length;
+
   const esp = (usuario.elecciones && usuario.elecciones.especiales) ? usuario.elecciones.especiales : [];
   let htmlEspeciales = `
     <div style="margin-top:15px; background:#1e293b; padding:12px; border-radius:8px; text-align:left; border:1px solid #334155;">
@@ -518,7 +519,7 @@ function mostrarModalHistorial(usuario) {
       <div style="padding:16px; border-bottom:1px solid #ea580c; display:flex; align-items:center; background:#1e293b; border-top-left-radius:14px; border-top-right-radius:14px;">
         <div style="text-align:left;">
           <h3 style="margin:0; color:#ffffff; font-size:16px; font-weight:bold;">${usuario.nombre}</h3>
-          <p style="margin:2px 0 0 0; color:#94a3b8; font-size:12px; font-weight:600;">Sucursal: ${usuario.sucursal} | Total: ${usuario.total} Pts</p>
+          <p style="margin:2px 0 0 0; color:#94a3b8; font-size:12px; font-weight:600;">Sucursal: ${usuario.sucursal} | Total: ${usuario.total} Pts | Base API: ${partidosDetectados}</p>
         </div>
         <button onclick="document.getElementById('modal-historial-kingpin').style.display='none'" style="background:transparent; border:none; color:#ffffff; font-size:28px; cursor:pointer; margin-left:auto; line-height:1;">&times;</button>
       </div>
